@@ -1,0 +1,15 @@
+.DS_Store
+
+*.pdf
+
+Icon?
+
+# dropbox
+.dropbox
+.dropbox.cache/ 
+
+# Folder
+data/
+MAVI2/
+*.idea/
+.ipynb_checkpoints/
