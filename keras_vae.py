@@ -86,7 +86,7 @@ def split_dataframe(df, train_p, val_p, random_state=200):
 
 if __name__ == '__main__':
     path_to_csv = 'MAVI2/2015/rap_2015.csv'
-    path_to_data = 'data/tiff/'
+    path_to_data = 'data/'
     file_extension = '.tiff'
     colour_band = 'RAW'
     train_p, val_p = 0.8, 0.1
