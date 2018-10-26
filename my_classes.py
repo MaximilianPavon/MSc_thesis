@@ -5,15 +5,14 @@ from skimage import io
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, list_IDs, labels, path_to_data, colour_band, file_extension, batch_size=32, dim=(512,512), n_channels=13,
-                 n_classes=10, shuffle=True):
+    def __init__(self, list_IDs, labels, path_to_data, colour_band, file_extension, batch_size=32,
+                 dim=(512,512), n_channels=13, shuffle=True):
         'Initialization'
         self.dim = dim
         self.batch_size = batch_size
         self.labels = labels
         self.list_IDs = list_IDs
         self.n_channels = n_channels
-        # self.n_classes = n_classes
         self.shuffle = shuffle
         self.on_epoch_end()
         self.path_to_data = path_to_data
@@ -35,7 +34,8 @@ class DataGenerator(keras.utils.Sequence):
         # Generate data
         X, y = self.__data_generation(list_IDs_temp)
 
-        return X, y
+        # return X , y
+        return X, X
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
