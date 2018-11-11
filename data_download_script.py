@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from sentinelhub import WmsRequest, MimeType, CRS, BBox
+from sentinelhub import WmsRequest, MimeType, CRS, BBox, CustomUrlParam
 
 
 def create_bbox_coordinates(upper_left_corner, lower_right_corner):
@@ -20,7 +20,7 @@ def create_bbox_coordinates(upper_left_corner, lower_right_corner):
     for coord in lower_right_corner:
         coordinates.append(coord)
 
-    return BBox(bbox=coordinates, crs=CRS.WGS84)
+    return BBox(bbox=coordinates, crs=CRS.UTM_35N)
 
 
 def save_images_for_df(df, path_to_data, layers, max_cc, time_window):
@@ -89,7 +89,9 @@ def save_images_for_df(df, path_to_data, layers, max_cc, time_window):
                                                     # maximum accepted cloud coverage of an image
                                                     data_folder=path_to_data,
                                                     # specify folder where to save the downloaded data
-                                                    instance_id=INSTANCE_ID)
+                                                    instance_id=INSTANCE_ID,
+                                                    custom_url_params={CustomUrlParam.ATMFILTER: 'ATMCOR'}
+                                                    )
 
                 # get data and simultaneously save the data
                 wms_true_color_request.get_data(save_data=True)
