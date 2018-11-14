@@ -8,7 +8,7 @@ Icon?
 
 # dropbox
 .dropbox
-.dropbox.cache/ 
+.dropbox.cache/
 
 # Folder
 data/
