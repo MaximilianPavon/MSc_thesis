@@ -1,16 +1,20 @@
 import pandas as pd
 import numpy as np
 import os.path
+import datetime
 from my_classes import DataGenerator
+from my_classes import TensorBoardWrapper
 import argparse
 
+import keras
 from keras.layers import Dense, Input
 from keras.layers import Conv2D, Flatten, Lambda
-from keras.layers import Reshape, Conv2DTranspose
+from keras.layers import Reshape, Conv2DTranspose, BatchNormalization
 from keras import backend as K
 from keras.models import Model
 from keras.utils import plot_model
 from keras.losses import mse, binary_crossentropy
+from keras import optimizers
 
 
 def preprocess_df(_path_to_csv, path_to_data, colour_band, file_extension):
@@ -129,13 +133,13 @@ if __name__ == '__main__':
         'colour_band': 'RAW',
         'file_extension': '.tiff',
         'dim': (512, 512),
-        'batch_size': 16,
+        'batch_size': 32,
         'n_channels': 13,
         'shuffle': True,
         'kernel_size': 3,
         'filters': 16,
         'latent_dim': 2,
-        'epochs': 30
+        'epochs': 100
     }
 
     df = preprocess_df(params['path_to_csv'], params['path_to_data'], params['colour_band'], params['file_extension'])
@@ -182,6 +186,7 @@ if __name__ == '__main__':
                    activation='relu',
                    strides=2,
                    padding='same')(x)
+        # x = BatchNormalization()(x)
 
     # shape info needed to build decoder model
     shape = K.int_shape(x)
@@ -207,12 +212,13 @@ if __name__ == '__main__':
     x = Reshape((shape[1], shape[2], shape[3]))(x)
 
     for i in range(2):
+        filters //= 2
         x = Conv2DTranspose(filters=filters,
                             kernel_size=kernel_size,
                             activation='relu',
                             strides=2,
                             padding='same')(x)
-        filters //= 2
+        # x = BatchNormalization()(x)
 
     outputs = Conv2DTranspose(filters=params['n_channels'],
                               kernel_size=kernel_size,
@@ -247,9 +253,21 @@ if __name__ == '__main__':
 
 
     # vae.add_loss(vae_loss)
-    vae.compile(optimizer='rmsprop', loss=my_vae_loss)
+    rmsprop = optimizers.RMSprop(lr=0.00001)
+    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'])
     vae.summary()
     plot_model(vae, to_file='vae_cnn.png', show_shapes=True)
+
+    # folder extension for bookkeeping
+    datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # add Keras callback
+    tbCallBack = TensorBoardWrapper(
+        validation_generator, val_df.shape[0] // validation_generator.batch_size, validation_generator.batch_size,
+        log_dir='./logs/' + datetime_string, histogram_freq=1, batch_size=validation_generator.batch_size, write_graph=True,
+        write_grads=False, write_images=False, embeddings_freq=0,
+        embeddings_layer_names=None, embeddings_metadata=None,
+        embeddings_data=None, update_freq='epoch')
 
     if args.weights:
         vae = vae.load_weights(args.weights)
@@ -260,5 +278,8 @@ if __name__ == '__main__':
             validation_data=validation_generator,
             epochs=epochs,
             use_multiprocessing=True,
-            workers=6)
-        vae.save_weights('vae_cnn_mnist.h5')
+            workers=6,
+            callbacks=[tbCallBack]
+        )
+        vae.save_weights('weights/keras_vae_' + datetime_string + '.h5')
+        print('training done')
