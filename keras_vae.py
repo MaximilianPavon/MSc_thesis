@@ -1,12 +1,8 @@
-import pandas as pd
-import numpy as np
-import os.path
 import datetime
-from my_classes import DataGenerator
-from my_classes import TensorBoardWrapper
+from my_classes import DataGenerator, TensorBoardWrapper
+from my_functions import preprocess_df, split_dataframe, sampling
 import argparse
 
-import keras
 from keras.layers import Dense, Input
 from keras.layers import Conv2D, Flatten, Lambda
 from keras.layers import Reshape, Conv2DTranspose, BatchNormalization
@@ -15,113 +11,14 @@ from keras.models import Model
 from keras.utils import plot_model
 from keras.losses import mse, binary_crossentropy
 from keras import optimizers
-
-
-def preprocess_df(_path_to_csv, path_to_data, colour_band, file_extension):
-    _df = pd.read_csv(_path_to_csv)
-    print('successfully loaded file: ', _path_to_csv)
-
-    # fill NaN as 0
-    _df = _df.fillna(0)
-
-    _df = _df.rename(index=str, columns={
-        'vuosi': 'YEAR',
-        'lohkonro': 'field parcel',
-        'tunnus': 'identifier',
-        'kasvikoodi': 'PLANT CODE',
-        'kasvi': 'PLANT',
-        'lajikekood': 'VARIETY CODE',
-        'lajike': 'VARIETY',
-        'pintaala': 'Property area',
-        'tays_tuho': 'full crop loss',
-        'ositt_tuho': 'partial crop loss'})
-
-    # remove duplicated entries in field parcel
-    # print(_df.shape[0] - len(np.unique(_df['field parcel'])), 'duplicate entries')
-    fieldparcel = _df['field parcel']
-    _df = _df[fieldparcel.duplicated() == False]
-    # print(_df.shape[0] - len(np.unique(_df['field parcel'])), 'duplicate entries')
-
-    # print('total number of fields: ', _df.shape[0])
-
-    # print('create new column: relative crop loss = crop loss / Property area')
-    _df['full crop loss scaled'] = _df['full crop loss'] / _df['Property area']
-    _df['partial crop loss scaled'] = _df['partial crop loss'] / _df['Property area']
-
-    # select largest number of samples for one given plant species
-    plants = _df['PLANT']
-    num = 0
-    for plant in np.unique(list(plants)):
-        num_tmp = len(_df[plants == plant])
-        # print(plant, '\t ', num_tmp)
-
-        if num_tmp > num:
-            num = num_tmp
-            plant_max = plant
-    # print('maximum number for', plant_max, 'with', num, 'entries')
-    _df = _df[plants == plant_max]
-
-    col_list = ['field parcel', 'full crop loss scaled', 'partial crop loss scaled']
-
-    # print('trim data frame to:', col_list)
-    _df = _df[col_list]
-
-    print('total number of fields before verifying file existence ', _df.shape[0])
-    # check if files for fields exist, if not, remove from data frame
-    not_existing = []
-    for index, row in _df.iterrows():
-        file = path_to_data + row['field parcel'] + '_' + colour_band + file_extension
-        if not os.path.isfile(file):
-            not_existing.append(index)
-
-    _df = _df.drop(not_existing)
-
-    print('data frame created with a total number of fields: ', _df.shape[0])
-    return _df
-
-
-def split_dataframe(_df, train_p, val_p, random_state=200):
-    # split data frame into train, validation and test
-    _train_df = _df.sample(frac=train_p, random_state=random_state)
-    _df = _df.drop(_train_df.index)
-    _val_df = _df.sample(frac=val_p / (1 - train_p), random_state=random_state)
-    _test_df = _df.drop(_val_df.index)
-
-    # make field parcel as indeces
-    _train_df = _train_df.set_index('field parcel')
-    _val_df = _val_df.set_index('field parcel')
-    _test_df = _test_df.set_index('field parcel')
-
-    return _train_df, _val_df, _test_df
-
-
-# reparameterization trick
-# instead of sampling from Q(z|X), sample eps = N(0,I)
-# then z = z_mean + sqrt(var)*eps
-def sampling(_args):
-    """Reparameterization trick by sampling fr an isotropic unit Gaussian.
-
-    # Arguments:
-        args (tensor): mean and log of variance of Q(z|X)
-
-    # Returns:
-        z (tensor): sampled latent vector
-    """
-
-    _z_mean, _z_log_var = _args
-    batch = K.shape(_z_mean)[0]
-    dim = K.int_shape(_z_mean)[1]
-    # by default, random_normal has mean=0 and std=1.0
-    epsilon = K.random_normal(shape=(batch, dim))
-    return _z_mean + K.exp(0.5 * _z_log_var) * epsilon
+from keras.callbacks import ModelCheckpoint
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    help_ = "Load h5 model trained weights"
-    parser.add_argument("-w", "--weights", help=help_)
-    help_ = "Use mse loss instead of binary cross entropy (default)"
-    parser.add_argument("-m", "--mse", help=help_, action='store_true')
+    parser.add_argument("-w", "--weights", help="Load h5 model trained weights")
+    parser.add_argument("-m", "--mse", action='store_true',
+                        help="Use mse loss instead of binary cross entropy (default)")
     args = parser.parse_args()
 
     # Parameters
@@ -136,10 +33,11 @@ if __name__ == '__main__':
         'batch_size': 32,
         'n_channels': 13,
         'shuffle': True,
+        'n_Conv': 6,
         'kernel_size': 3,
-        'filters': 16,
+        'filters': 20,
         'latent_dim': 2,
-        'epochs': 100
+        'epochs': 1000
     }
 
     df = preprocess_df(params['path_to_csv'], params['path_to_data'], params['colour_band'], params['file_extension'])
@@ -163,6 +61,7 @@ if __name__ == '__main__':
     training_generator = DataGenerator(partition['train'], labels, params['path_to_data'], params['colour_band'],
                                        params['file_extension'], params['batch_size'], params['dim'],
                                        params['n_channels'], params['shuffle'])
+
     validation_generator = DataGenerator(partition['validation'], labels, params['path_to_data'], params['colour_band'],
                                          params['file_extension'], params['batch_size'], params['dim'],
                                          params['n_channels'], params['shuffle'])
@@ -179,8 +78,8 @@ if __name__ == '__main__':
     # build encoder model
     inputs = Input(shape=input_shape, name='encoder_input')
     x = inputs
-    for i in range(2):
-        filters *= 2
+    for i in range(params['n_Conv']):
+        # filters *= 2
         x = Conv2D(filters=filters,
                    kernel_size=kernel_size,
                    activation='relu',
@@ -204,15 +103,15 @@ if __name__ == '__main__':
     # instantiate encoder model
     encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
     encoder.summary()
-    plot_model(encoder, to_file='vae_cnn_encoder.png', show_shapes=True)
+    plot_model(encoder, to_file='plots/vae_cnn_encoder.png', show_shapes=True)
 
     # build decoder model
     latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
     x = Dense(shape[1] * shape[2] * shape[3], activation='relu')(latent_inputs)
     x = Reshape((shape[1], shape[2], shape[3]))(x)
 
-    for i in range(2):
-        filters //= 2
+    for i in range(params['n_Conv']):
+        # filters //= 2
         x = Conv2DTranspose(filters=filters,
                             kernel_size=kernel_size,
                             activation='relu',
@@ -229,12 +128,11 @@ if __name__ == '__main__':
     # instantiate decoder model
     decoder = Model(latent_inputs, outputs, name='decoder')
     decoder.summary()
-    plot_model(decoder, to_file='vae_cnn_decoder.png', show_shapes=True)
+    plot_model(decoder, to_file='plots/vae_cnn_decoder.png', show_shapes=True)
 
     # instantiate VAE model
     outputs = decoder(encoder(inputs)[2])
     vae = Model(inputs, outputs, name='vae')
-
 
     def my_vae_loss(_inputs, _outputs):
         # VAE loss = mse_loss or xent_loss + kl_loss
@@ -251,23 +149,27 @@ if __name__ == '__main__':
         vae_loss = K.mean(reconstruction_loss + kl_loss)
         return vae_loss
 
-
-    # vae.add_loss(vae_loss)
     rmsprop = optimizers.RMSprop(lr=0.00001)
     vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'])
     vae.summary()
-    plot_model(vae, to_file='vae_cnn.png', show_shapes=True)
+    plot_model(vae, to_file='plots/vae_cnn.png', show_shapes=True)
 
     # folder extension for bookkeeping
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    config_string = str(params['n_Conv']) + 'n_Conv_' + datetime_string
 
-    # add Keras callback
+    # add Keras callbacks for logging and for saving model checkpoints
     tbCallBack = TensorBoardWrapper(
         validation_generator, val_df.shape[0] // validation_generator.batch_size, validation_generator.batch_size,
-        log_dir='./logs/' + datetime_string, histogram_freq=1, batch_size=validation_generator.batch_size, write_graph=True,
-        write_grads=False, write_images=False, embeddings_freq=0,
+        log_dir='logging/TBlogs/' + config_string, histogram_freq=10, batch_size=validation_generator.batch_size,
+        write_graph=True, write_grads=False, write_images=False, embeddings_freq=0,
         embeddings_layer_names=None, embeddings_metadata=None,
         embeddings_data=None, update_freq='epoch')
+
+    model_checkpoint = ModelCheckpoint(filepath='logging/checkpoints/' + config_string + '.hdf5', verbose=1,
+                                       save_best_only=True, mode='min', period=1)
+
+    callbacks_list = [model_checkpoint, tbCallBack]
 
     if args.weights:
         vae = vae.load_weights(args.weights)
@@ -279,7 +181,7 @@ if __name__ == '__main__':
             epochs=epochs,
             use_multiprocessing=True,
             workers=6,
-            callbacks=[tbCallBack]
+            callbacks=callbacks_list
         )
-        vae.save_weights('weights/keras_vae_' + datetime_string + '.h5')
+        vae.save_weights('logging/weights/vae_' + config_string + '.h5')
         print('training done')
