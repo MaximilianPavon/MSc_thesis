@@ -17,5 +17,6 @@ MAVI2/
 Jere_data/
 data_both_CL/
 original data/
+downloaded_dataset_new/
 *.idea/
 .ipynb_checkpoints/
