@@ -1,8 +1,10 @@
+# files
 .DS_Store
 __pycache__/
 .fuse_*
 *.png
 *.pdf
+events.out.tfevents.*
 
 Icon?
 
