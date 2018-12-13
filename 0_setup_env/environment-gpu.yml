@@ -1,0 +1,22 @@
+name: edward3
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6
+  - jupyterlab
+  - tqdm
+  - matplotlib
+  - numpy
+  - pandas
+  - pillow
+  - pydot
+  - scikit-image
+  - keras-gpu
+  - tensorflow-gpu
+  - cudatoolkit=9.0
+  - pip:
+    - edward
+    - sentinelhub
+    - gpustat
+prefix: /u/44/prollm1/unix/.conda/envs/edward3
