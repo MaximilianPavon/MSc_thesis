@@ -7,6 +7,7 @@ __pycache__/
 events.out.tfevents.*
 *.idea/
 .ipynb_checkpoints/
+._*
 
 Icon?
 
