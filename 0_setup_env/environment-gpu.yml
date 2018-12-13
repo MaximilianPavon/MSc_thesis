@@ -1,4 +1,4 @@
-name: edward3
+name: edward
 channels:
   - conda-forge
   - defaults
@@ -19,4 +19,4 @@ dependencies:
     - edward
     - sentinelhub
     - gpustat
-prefix: /u/44/prollm1/unix/.conda/envs/edward3
+# prefix: /u/44/prollm1/unix/.conda/envs/edward
