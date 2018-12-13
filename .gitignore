@@ -5,6 +5,8 @@ __pycache__/
 *.png
 *.pdf
 events.out.tfevents.*
+*.idea/
+.ipynb_checkpoints/
 
 Icon?
 
@@ -13,12 +15,5 @@ Icon?
 .dropbox.cache/
 
 # Folder
-data/
-MAVI1/
-MAVI2/
-Jere_data/
-data_both_CL/
-original data/
-downloaded_dataset_new/
-*.idea/
-.ipynb_checkpoints/
+2_data/
+
