@@ -71,7 +71,7 @@ def save_images_for_df(df, path_to_data, layers, max_cc, time_window):
                     file_extension = '.png'
 
                 # create WMS request
-                wms_true_color_request = WmsRequest(layer=layer,
+                wms_request = WmsRequest(layer=layer,
                                                     bbox=bbox,
                                                     # bounding box for the WMS request format: longitude and
                                                     # latitude coordinates of upper left and lower right corners
@@ -94,18 +94,18 @@ def save_images_for_df(df, path_to_data, layers, max_cc, time_window):
                                                     )
 
                 # get data and simultaneously save the data
-                wms_true_color_request.get_data(save_data=True)
+                wms_request.get_data(save_data=True)
 
                 # remove additional images, in case more than one image was downloaded and rename the last file
                 # original naming would be: wms_TRUE-COLOR-S2-L1C_EPSG4326_46.16_-16.15_46.51_-15.58_2017-12-15T07-12
                 # -03_512X849.png
-                n_images = len(wms_true_color_request.get_filename_list())
+                n_images = len(wms_request.get_filename_list())
                 for i in range(n_images):
                     if i + 1 < n_images:
-                        os.remove(path_to_data + wms_true_color_request.get_filename_list()[i])
+                        os.remove(path_to_data + wms_request.get_filename_list()[i])
                     elif i + 1 == n_images:
 
-                        os.rename(path_to_data + wms_true_color_request.get_filename_list()[i],
+                        os.rename(path_to_data + wms_request.get_filename_list()[i],
                                   path_to_data + parcel_field + '_' + layer + file_extension)
 
                 c = c + 1
