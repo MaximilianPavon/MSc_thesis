@@ -1,7 +1,9 @@
-import datetime
 from my_classes import DataGenerator, TensorBoardWrapper
 from my_functions import preprocess_df, split_dataframe, sampling
+
+import datetime
 import argparse
+import pandas as pd
 
 from keras.layers import Dense, Input
 from keras.layers import Conv2D, Flatten, Lambda
@@ -23,11 +25,11 @@ if __name__ == '__main__':
 
     # Parameters
     params = {
-        'path_to_csv': 'MAVI2/2015/rap_2015.csv',
+        'path_to_csv': '../2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed.csv',
         'train_p': 0.8,
         'val_p': 0.1,
-        'path_to_data': 'data/',
-        'colour_band': 'RAW',
+        'path_to_data': '../2_data/03_data/dataset1/',
+        'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
         'dim': (512, 512),
         'batch_size': 32,
@@ -40,7 +42,8 @@ if __name__ == '__main__':
         'epochs': 1000
     }
 
-    df = preprocess_df(params['path_to_csv'], params['path_to_data'], params['colour_band'], params['file_extension'])
+    # df = preprocess_df(params['path_to_csv'], params['path_to_data'], params['colour_band'], params['file_extension'])
+    df = pd.read_csv(params['path_to_csv'])
 
     # add color spectrum and file extension to field parcel column in order to match to the file name
     # df['field parcel'] = df['field parcel'] + '_' + color_spectrum
@@ -103,7 +106,7 @@ if __name__ == '__main__':
     # instantiate encoder model
     encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
     encoder.summary()
-    plot_model(encoder, to_file='plots/vae_cnn_encoder.png', show_shapes=True)
+    plot_model(encoder, to_file='../4_runs/plots/vae_encoder.png', show_shapes=True)
 
     # build decoder model
     latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
@@ -128,7 +131,7 @@ if __name__ == '__main__':
     # instantiate decoder model
     decoder = Model(latent_inputs, outputs, name='decoder')
     decoder.summary()
-    plot_model(decoder, to_file='plots/vae_cnn_decoder.png', show_shapes=True)
+    plot_model(decoder, to_file='../4_runs/plots/vae_decoder.png', show_shapes=True)
 
     # instantiate VAE model
     outputs = decoder(encoder(inputs)[2])
@@ -152,7 +155,7 @@ if __name__ == '__main__':
     rmsprop = optimizers.RMSprop(lr=0.00001)
     vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'])
     vae.summary()
-    plot_model(vae, to_file='plots/vae_cnn.png', show_shapes=True)
+    plot_model(vae, to_file='../4_runs/plots/vae.png', show_shapes=True)
 
     # folder extension for bookkeeping
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -161,12 +164,12 @@ if __name__ == '__main__':
     # add Keras callbacks for logging and for saving model checkpoints
     tbCallBack = TensorBoardWrapper(
         validation_generator, val_df.shape[0] // validation_generator.batch_size, validation_generator.batch_size,
-        log_dir='logging/TBlogs/' + config_string, histogram_freq=10, batch_size=validation_generator.batch_size,
+        log_dir='../4_runs/logging/TBlogs/' + config_string, histogram_freq=10, batch_size=validation_generator.batch_size,
         write_graph=True, write_grads=False, write_images=False, embeddings_freq=0,
         embeddings_layer_names=None, embeddings_metadata=None,
         embeddings_data=None, update_freq='epoch')
 
-    model_checkpoint = ModelCheckpoint(filepath='logging/checkpoints/' + config_string + '.hdf5', verbose=1,
+    model_checkpoint = ModelCheckpoint(filepath='../4_runs/logging/checkpoints/' + config_string + '.hdf5', verbose=1,
                                        save_best_only=True, mode='min', period=1)
 
     callbacks_list = [model_checkpoint, tbCallBack]
@@ -183,5 +186,5 @@ if __name__ == '__main__':
             workers=6,
             callbacks=callbacks_list
         )
-        vae.save_weights('logging/weights/vae_' + config_string + '.h5')
+        vae.save_weights('../4_runs/logging/weights/vae_' + config_string + '.h5')
         print('training done')
