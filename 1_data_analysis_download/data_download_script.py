@@ -72,26 +72,26 @@ def save_images_for_df(df, path_to_data, layers, max_cc, time_window):
 
                 # create WMS request
                 wms_request = WmsRequest(layer=layer,
-                                                    bbox=bbox,
-                                                    # bounding box for the WMS request format: longitude and
-                                                    # latitude coordinates of upper left and lower right corners
-                                                    time=time_window,
-                                                    # acquisition date: '2017-12-15', 'latest' or time window (start
-                                                    # date, end date)
-                                                    width=size, height=size,
-                                                    # It is required to specify at least one of
-                                                    # `width` and `height` parameters. If only one of them is specified
-                                                    # the the other one will be calculated to best fit the bounding box
-                                                    # ratio. If both of them are specified they will be used no matter
-                                                    # the bounding box ratio.
-                                                    image_format=image_format,
-                                                    maxcc=max_cc,
-                                                    # maximum accepted cloud coverage of an image
-                                                    data_folder=path_to_data,
-                                                    # specify folder where to save the downloaded data
-                                                    instance_id=INSTANCE_ID,
-                                                    custom_url_params={CustomUrlParam.ATMFILTER: 'ATMCOR'}
-                                                    )
+                                         bbox=bbox,
+                                         # bounding box for the WMS request format: longitude and
+                                         # latitude coordinates of upper left and lower right corners
+                                         time=time_window,
+                                         # acquisition date: '2017-12-15', 'latest' or time window (start
+                                         # date, end date)
+                                         width=size, height=size,
+                                         # It is required to specify at least one of
+                                         # `width` and `height` parameters. If only one of them is specified
+                                         # the the other one will be calculated to best fit the bounding box
+                                         # ratio. If both of them are specified they will be used no matter
+                                         # the bounding box ratio.
+                                         image_format=image_format,
+                                         maxcc=max_cc,
+                                         # maximum accepted cloud coverage of an image
+                                         data_folder=path_to_data,
+                                         # specify folder where to save the downloaded data
+                                         instance_id=INSTANCE_ID,
+                                         custom_url_params={CustomUrlParam.ATMFILTER: 'ATMCOR'}
+                                         )
 
                 # get data and simultaneously save the data
                 wms_request.get_data(save_data=True)
@@ -116,9 +116,9 @@ if __name__ == '__main__':
 
     # set some global variables
     INSTANCE_ID = '02a54b79-4c74-4960-a377-70c15518221b'
-    path_to_csv = 'MAVI2/2015/rap_2015.csv'
+    path_to_csv = '/Users/maximilianproll/Dropbox (Aalto)/2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.csv'
     layers = ['NDVI', 'RAW']
-    path_to_data = 'data/'
+    path_to_data = '/Users/maximilianproll/Dropbox (Aalto)/2_data/02_data_incorrect_coord/'
     time_window = ('2015-08-01', '2015-08-31')
     max_cc = 0.3
 
