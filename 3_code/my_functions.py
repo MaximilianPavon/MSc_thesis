@@ -60,6 +60,8 @@ def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
         file = path_to_data + row['field parcel'] + '_' + colour_band + file_extension
         if not os.path.isfile(file):
             not_existing.append(index)
+        else:
+            df.set_value(index, 'full path', file)
 
     df = df.drop(not_existing)
 
