@@ -11,4 +11,6 @@ if __name__ == '__main__':
     }
 
     df = preprocess_df(params['path_to_csv'], params['path_to_data'], params['colour_band'], params['file_extension'])
-    df.to_csv(os.path.join(*params['path_to_csv'].split('/')[0:-1],'preprocessed.csv'), index=False)
+    new_path = os.path.join(*params['path_to_csv'].split('/')[0:-1], 'preprocessed.csv')
+    df.to_csv(new_path, index=False)
+    print(f'preprocessed .csv file saved under: {new_path}')
