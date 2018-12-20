@@ -5,7 +5,7 @@ if __name__ == '__main__':
 
     params = {
         'path_to_csv': '../2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.csv',
-        'path_to_data': '../2_data/03_data/dataset1/',
+        'path_to_data': '../2_data/03_data/',
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
     }

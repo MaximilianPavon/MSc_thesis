@@ -55,13 +55,17 @@ def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
 
     print('total number of fields before verifying file existence ', df.shape[0])
     # check if files for fields exist, if not, remove from data frame
+    subfolders = ['dataset1/', 'dataset2/', 'dataset3/', 'dataset4/', 'dataset5/', 'dataset6/', 'dataset7/', 'dataset8/']
     not_existing = []
     for index, row in df.iterrows():
-        file = path_to_data + row['field parcel'] + '_' + colour_band + file_extension
-        if not os.path.isfile(file):
-            not_existing.append(index)
-        else:
-            df.set_value(index, 'full path', file)
+        for folder in subfolders:
+            path = os.path.join(path_to_data, folder)
+            file = path + row['field parcel'] + '_' + colour_band + file_extension
+            if os.path.isfile(file):
+                df.at[index, 'full path'] = file
+                break
+            elif folder == subfolders[-1]:
+                not_existing.append(index)
 
     df = df.drop(not_existing)
 
