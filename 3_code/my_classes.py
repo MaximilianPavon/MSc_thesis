@@ -5,7 +5,7 @@ from skimage import io
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, list_IDs, labels, path_to_data, colour_band, file_extension, batch_size=32,
+    def __init__(self, list_IDs, labels, path_to_data, has_cb_and_ext, colour_band=None, file_extension=None, batch_size=32,
                  dim=(512,512), n_channels=13, shuffle=True):
         'Initialization'
         self.dim = dim
@@ -16,8 +16,13 @@ class DataGenerator(keras.utils.Sequence):
         self.shuffle = shuffle
         self.on_epoch_end()
         self.path_to_data = path_to_data
+        self.has_cb_and_ext = has_cb_and_ext
         self.colour_band = colour_band
         self.file_extension = file_extension
+
+        if not self.has_cb_and_ext and (not self.colour_band or not self.file_extension):
+            raise Exception('When has_cb_and_ext is set to False, both colour_band and file_extension have to be '
+                            'specified')
 
     def __len__(self):
         'Denotes the number of batches per epoch'
@@ -47,12 +52,15 @@ class DataGenerator(keras.utils.Sequence):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
-        y = np.empty((self.batch_size), dtype=int)
+        y = np.empty(self.batch_size, dtype=int)
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
-            X[i,] = io.imread(self.path_to_data + ID + '_' + self.colour_band + self.file_extension)
+            if self.has_cb_and_ext:
+                X[i,] = io.imread(self.path_to_data + ID)
+            else:
+                X[i,] = io.imread(self.path_to_data + ID + '_' + self.colour_band + self.file_extension)
 
             # Store class
             y[i] = self.labels[ID]

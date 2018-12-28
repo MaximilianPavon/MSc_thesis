@@ -1,5 +1,5 @@
 from my_classes import DataGenerator, TensorBoardWrapper
-from my_functions import preprocess_df, split_dataframe, sampling
+from my_functions import split_dataframe, sampling
 
 import datetime
 import argparse
@@ -28,7 +28,8 @@ if __name__ == '__main__':
         'path_to_csv': '../2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed.csv',
         'train_p': 0.8,
         'val_p': 0.1,
-        'path_to_data': '../2_data/03_data/dataset1/',
+        'path_to_data': '../2_data/03_data/',
+        'has_cb_and_ext': True,
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
         'dim': (512, 512),
@@ -61,13 +62,23 @@ if __name__ == '__main__':
 
     # Generators
     print('create DataGenerators')
-    training_generator = DataGenerator(partition['train'], labels, params['path_to_data'], params['colour_band'],
-                                       params['file_extension'], params['batch_size'], params['dim'],
-                                       params['n_channels'], params['shuffle'])
+    training_generator = DataGenerator(list_IDs=partition['train'],
+                                       labels=labels,
+                                       path_to_data=params['path_to_data'],
+                                       has_cb_and_ext=params['has_cb_and_ext'],
+                                       batch_size=params['batch_size'],
+                                       dim=params['dim'],
+                                       n_channels=params['n_channels'],
+                                       shuffle=params['shuffle'])
 
-    validation_generator = DataGenerator(partition['validation'], labels, params['path_to_data'], params['colour_band'],
-                                         params['file_extension'], params['batch_size'], params['dim'],
-                                         params['n_channels'], params['shuffle'])
+    validation_generator = DataGenerator(list_IDs=partition['validation'],
+                                         labels=labels,
+                                         path_to_data=params['path_to_data'],
+                                         has_cb_and_ext=params['has_cb_and_ext'],
+                                         batch_size=params['batch_size'],
+                                         dim=params['dim'],
+                                         n_channels=params['n_channels'],
+                                         shuffle=params['shuffle'])
 
     # network parameters
     input_shape = (params['dim'][0], params['dim'][1], params['n_channels'])
