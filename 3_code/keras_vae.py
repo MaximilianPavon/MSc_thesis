@@ -174,14 +174,29 @@ if __name__ == '__main__':
 
     # add Keras callbacks for logging and for saving model checkpoints
     tbCallBack = TensorBoardWrapper(
-        validation_generator, val_df.shape[0] // validation_generator.batch_size, validation_generator.batch_size,
-        log_dir='../4_runs/logging/TBlogs/' + config_string, histogram_freq=10, batch_size=validation_generator.batch_size,
-        write_graph=True, write_grads=False, write_images=False, embeddings_freq=0,
-        embeddings_layer_names=None, embeddings_metadata=None,
-        embeddings_data=None, update_freq='epoch')
+        batch_gen=validation_generator,
+        nb_steps=df.shape[0] // validation_generator.batch_size,
+        b_size=validation_generator.batch_size,
+        log_dir='../4_runs/logging/TBlogs/' + config_string,
+        histogram_freq=10,
+        batch_size=validation_generator.batch_size,
+        write_graph=True,
+        write_grads=False,
+        write_images=False,
+        embeddings_freq=0,
+        embeddings_layer_names=None,
+        embeddings_metadata=None,
+        embeddings_data=None,
+        update_freq='epoch',
+    )
 
-    model_checkpoint = ModelCheckpoint(filepath='../4_runs/logging/checkpoints/' + config_string + '.hdf5', verbose=1,
-                                       save_best_only=True, mode='min', period=1)
+    model_checkpoint = ModelCheckpoint(
+        filepath='../4_runs/logging/checkpoints/' + config_string + '_{epoch:04d}-{val_loss:.2f}.hdf5',
+        verbose=1,
+        save_best_only=True,
+        mode='min',
+        period=1,
+    )
 
     callbacks_list = [model_checkpoint, tbCallBack]
 
