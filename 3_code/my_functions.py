@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os.path
 from keras import backend as K
+from tqdm import tqdm
 
 
 def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
@@ -53,16 +54,18 @@ def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
     # print('trim data frame to:', col_list)
     df = df[col_list]
 
-    print('total number of fields before verifying file existence ', df.shape[0])
     # check if files for fields exist, if not, remove from data frame
+    # write relative path including colour band and file extension to dataframe for future usage
+    print('total number of fields before verifying file existence ', df.shape[0])
     subfolders = ['dataset1/', 'dataset2/', 'dataset3/', 'dataset4/', 'dataset5/', 'dataset6/', 'dataset7/', 'dataset8/']
     not_existing = []
-    for index, row in df.iterrows():
+    for index, row in tqdm(df.iterrows(), total=df.shape[0]):
         for folder in subfolders:
-            path = os.path.join(path_to_data, folder)
-            file = path + row['field parcel'] + '_' + colour_band + file_extension
-            if os.path.isfile(file):
-                df.at[index, 'full path'] = file
+            file_full = os.path.join(path_to_data, folder) + row['field parcel'] + '_' + colour_band + file_extension
+            file_partial = folder + row['field parcel'] + '_' + colour_band + file_extension
+            if os.path.isfile(file_full):
+                # df.at[index, 'full path'] = file_full
+                df.at[index, 'partial path'] = file_partial
                 break
             elif folder == subfolders[-1]:
                 not_existing.append(index)
