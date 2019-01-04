@@ -1,5 +1,5 @@
 from my_classes import DataGenerator, TensorBoardWrapper
-from my_functions import split_dataframe, sampling
+from my_functions import split_dataframe, sampling, plot_results
 
 import datetime
 import argparse
@@ -19,8 +19,7 @@ from keras.callbacks import ModelCheckpoint
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", "--weights", help="Load h5 model trained weights")
-    parser.add_argument("-m", "--mse", action='store_true',
-                        help="Use mse loss instead of binary cross entropy (default)")
+    parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
     args = parser.parse_args()
 
     # Parameters
@@ -79,6 +78,15 @@ if __name__ == '__main__':
                                          dim=params['dim'],
                                          n_channels=params['n_channels'],
                                          shuffle=params['shuffle'])
+
+    # test_generator = DataGenerator(list_IDs=partition['test'],
+    #                                labels=labels,
+    #                                path_to_data=params['path_to_data'],
+    #                                has_cb_and_ext=params['has_cb_and_ext'],
+    #                                batch_size=params['batch_size'],
+    #                                dim=params['dim'],
+    #                                n_channels=params['n_channels'],
+    #                                shuffle=params['shuffle'])
 
     # network parameters
     input_shape = (params['dim'][0], params['dim'][1], params['n_channels'])
@@ -214,3 +222,8 @@ if __name__ == '__main__':
         )
         vae.save_weights('../4_runs/logging/weights/vae_' + config_string + '.h5')
         print('training done')
+
+    plot_results(decoder,
+                 # data_generator=test_generator,
+                 # batch_size=params['batch_size'],
+                 model_name="../4_runs/plots/vae_latent")
