@@ -113,7 +113,7 @@ def sampling(args):
     return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
 
-def plot_results(decoder, data_generator=None, batch_size=128, model_name='../4_runs/plots/vae_latent'):
+def plot_results(decoder, data_generator=None, batch_size=128, model_name='../4_runs/plots/latent'):
     """Plots labels and MNIST digits as function of 2-dim latent vector
 
     # Arguments:

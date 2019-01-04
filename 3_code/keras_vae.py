@@ -226,4 +226,4 @@ if __name__ == '__main__':
     plot_results(decoder,
                  # data_generator=test_generator,
                  # batch_size=params['batch_size'],
-                 model_name="../4_runs/plots/vae_latent")
+                 model_name="../4_runs/plots/latent")
