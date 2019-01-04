@@ -114,14 +114,15 @@ def sampling(args):
 
 
 def plot_results(decoder, data_generator=None, batch_size=128, model_name='../4_runs/plots/latent'):
-    """Plots labels and MNIST digits as function of 2-dim latent vector
+    """Plots labels and satellite images as function of 2-dim latent vector
 
     # Arguments:
-        decoder : decoder model
-        data_generator (tuple): test data_generator
-        batch_size (int): prediction batch size
-        model_name (string): which model is using this function
+        :param decoder: decoder model
+        :param data_generator: test data_generator - NOT in use yet
+        :param batch_size: prediction batch size - NOT in use yet
+        :param model_name: which model is using this function
     """
+
 
     os.makedirs(model_name, exist_ok=True)
 
