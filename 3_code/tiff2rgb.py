@@ -23,6 +23,10 @@ if __name__ == '__main__':
     im = io.imread(args.file)
     im = im[:, :, [4, 3, 2]]
 
+    for i in range(im.shape[-1]):
+        im[i] /= (im[i].max())
+    # im /= (im.max())
+
     plt.imshow(im)
     plt.title(f'True color of image: {im_name}')
     plt.savefig(f'../2_data/04_png/{im_name}.png')

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. /anaconda/etc/profile.d/conda.sh
+. /anaconda3/etc/profile.d/conda.sh
 conda activate
 conda activate edward
 
@@ -11,7 +11,7 @@ i=1
 for file in ../2_data/03_data/dataset1/*.tiff; do
 #    echo $file
 #    echo $i
-    python tiff2rgb.py -f $file
+    python tiff2rgb.py -f ${file}
     i=$((i+1))
     if [[ $i -gt N_MAX ]]; then
         break
