@@ -1,7 +1,7 @@
 import matplotlib
 matplotlib.use("TkAgg")  # fix for macOS
 from matplotlib import pyplot as plt
-from skimage import io
+from skimage import io, exposure
 import argparse
 import sys
 
@@ -21,11 +21,13 @@ if __name__ == '__main__':
     im_name = args.file.split('/')[-1].split('.')[0]
 
     im = io.imread(args.file)
-    im = im[:, :, [4, 3, 2]]
+    im = im[:, :, [3, 2, 1]]
 
-    for i in range(im.shape[-1]):
-        im[i] /= (im[i].max())
-    # im /= (im.max())
+    # a tiff file contains the raw channels: return [B01,B02,B03,B04,B05,B06,B07,B08,B8A,B09,B10,B11,B12]
+    # a rgb images needs the following channels:  return [B04, B03, B02]
+    # ==> index [3, 2, 1]
+
+    im = exposure.rescale_intensity(im)
 
     plt.imshow(im)
     plt.title(f'True color of image: {im_name}')

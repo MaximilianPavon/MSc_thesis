@@ -153,7 +153,12 @@ def plot_results(decoder, data_generator=None, batch_size=128, model_name='../4_
             z_sample = np.array([[xi, yi]])
             x_decoded = decoder.predict(z_sample)
             image = x_decoded[0].reshape(img_size, img_size, n_channels)
-            image = image[:, :, [4, 3, 2]]
+            image = image[:, :, [3, 2, 1]]
+            
+            # a tiff file contains the raw channels: return [B01,B02,B03,B04,B05,B06,B07,B08,B8A,B09,B10,B11,B12]
+            # a rgb images needs the following channels:  return [B04, B03, B02]
+            # ==> index [3, 2, 1]
+
             figure[i * img_size: (i + 1) * img_size, j * img_size: (j + 1) * img_size, :] = image
 
     plt.figure(figsize=(10, 10))
