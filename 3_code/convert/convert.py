@@ -22,7 +22,9 @@ if __name__ == '__main__':
     print(f'Converting all .tiff images in {args.path}.')
     os.chdir(args.path)
 
-    for file in tqdm(glob.glob("*.tiff"), total=5000):
+    n_files = len(glob.glob("*.tiff"))
+
+    for file in tqdm(glob.glob("*.tiff"), total=n_files):
         f_name = file.split('.')[0]
 
         im = io.imread(file)
