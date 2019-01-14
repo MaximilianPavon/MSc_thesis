@@ -58,7 +58,8 @@ def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
     # check if files for fields exist, if not, remove from data frame
     # write relative path including colour band and file extension to dataframe for future usage
     print('total number of fields before verifying file existence ', df.shape[0])
-    subfolders = ['dataset1/', 'dataset2/', 'dataset3/', 'dataset4/', 'dataset5/', 'dataset6/', 'dataset7/', 'dataset8/']
+    subfolders = ['dataset1/', 'dataset2/', 'dataset3/', 'dataset4/', 'dataset5/', 'dataset6/', 'dataset7/',
+                  'dataset8/']
     not_existing = []
     for index, row in tqdm(df.iterrows(), total=df.shape[0]):
         for folder in subfolders:
@@ -113,38 +114,36 @@ def sampling(args):
     return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
 
-def plot_results(decoder, data_generator=None, batch_size=128, model_name='../4_runs/plots/latent'):
+def plot_latent_space(model, data_generator, path='../4_runs/plots/'):
     """Plots labels and satellite images as function of 2-dim latent vector
 
     # Arguments:
-        :param decoder: decoder model
-        :param data_generator: test data_generator - NOT in use yet
-        :param batch_size: prediction batch size - NOT in use yet
-        :param model_name: which model is using this function
+        :param model: tuple of encoder and decoder model
+        :param data_generator: test data_generator
+        :param path: path for saving the plots
     """
+    encoder , decoder = model
 
+    os.makedirs(path, exist_ok=True)
 
-    os.makedirs(model_name, exist_ok=True)
-
-    # print('display a 2D plot of the digit classes in the latent space')
-    # filename = os.path.join(model_name, "vae_mean.png")
-    # z_mean, _, _ = encoder.predict_generator(data_generator, batch_size=batch_size)
-    # plt.figure(figsize=(12, 10))
-    # plt.scatter(z_mean[:, 0], z_mean[:, 1], c=y_test)
-    # plt.colorbar()
-    # plt.xlabel("z[0]")
-    # plt.ylabel("z[1]")
-    # plt.savefig(filename)
-    # plt.show()
+    print('display a 2D plot of the satellite images  projected in the latent space')
+    filename = os.path.join(path, "z_mean_over_latent.png")
+    z_mean, _, _ = encoder.predict_generator(data_generator, batch_size=data_generator.batch_size)
+    plt.figure(figsize=(12, 10))
+    plt.scatter(z_mean[:, 0], z_mean[:, 1])
+    plt.xlabel("z[0]")
+    plt.ylabel("z[1]")
+    plt.savefig(filename)
+    plt.show()
 
     print('display a 30x30 2D manifold of reconstructed satellite images')
-    filename = os.path.join(model_name, "digits_over_latent.png")
+    filename = os.path.join(path, "images_over_latent.png")
     n = 30
     img_size = 512
     n_channels = 13
     figure = np.zeros((img_size * n, img_size * n, 3))
     # linearly spaced coordinates corresponding to the 2D plot
-    # of digit classes in the latent space
+    # of satellite images in the latent space
     grid_x = np.linspace(-4, 4, n)
     grid_y = np.linspace(-4, 4, n)[::-1]
 
@@ -154,7 +153,7 @@ def plot_results(decoder, data_generator=None, batch_size=128, model_name='../4_
             x_decoded = decoder.predict(z_sample)
             image = x_decoded[0].reshape(img_size, img_size, n_channels)
             image = image[:, :, [3, 2, 1]]
-            
+
             # a tiff file contains the raw channels: return [B01,B02,B03,B04,B05,B06,B07,B08,B8A,B09,B10,B11,B12]
             # a rgb images needs the following channels:  return [B04, B03, B02]
             # ==> index [3, 2, 1]

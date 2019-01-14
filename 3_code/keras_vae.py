@@ -1,5 +1,5 @@
 from my_classes import DataGenerator, TensorBoardWrapper
-from my_functions import split_dataframe, sampling, plot_results
+from my_functions import split_dataframe, sampling, plot_latent_space
 
 import datetime
 import argparse
@@ -79,14 +79,14 @@ if __name__ == '__main__':
                                          n_channels=params['n_channels'],
                                          shuffle=params['shuffle'])
 
-    # test_generator = DataGenerator(list_IDs=partition['test'],
-    #                                labels=labels,
-    #                                path_to_data=params['path_to_data'],
-    #                                has_cb_and_ext=params['has_cb_and_ext'],
-    #                                batch_size=params['batch_size'],
-    #                                dim=params['dim'],
-    #                                n_channels=params['n_channels'],
-    #                                shuffle=params['shuffle'])
+    test_generator = DataGenerator(list_IDs=partition['test'],
+                                   labels=labels,
+                                   path_to_data=params['path_to_data'],
+                                   has_cb_and_ext=params['has_cb_and_ext'],
+                                   batch_size=params['batch_size'],
+                                   dim=params['dim'],
+                                   n_channels=params['n_channels'],
+                                   shuffle=params['shuffle'])
 
     # network parameters
     input_shape = (params['dim'][0], params['dim'][1], params['n_channels'])
@@ -223,7 +223,6 @@ if __name__ == '__main__':
         vae.save_weights('../4_runs/logging/weights/vae_' + config_string + '.h5')
         print('training done')
 
-    plot_results(decoder,
-                 # data_generator=test_generator,
-                 # batch_size=params['batch_size'],
-                 model_name="../4_runs/plots/latent")
+    plot_latent_space((encoder, decoder),
+                      data_generator=test_generator,
+                      path="../4_runs/plots/")
