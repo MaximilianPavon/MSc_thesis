@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from skimage import io, exposure
 import argparse
 import sys
+import os
 
 if __name__ == '__main__':
 
@@ -29,8 +30,11 @@ if __name__ == '__main__':
 
     im = exposure.rescale_intensity(im)
 
+    path = './2_data/05_png/'
+
     plt.imshow(im)
     plt.title(f'True color of image: {im_name}')
-    plt.savefig(f'../2_data/04_png/{im_name}.png')
+    os.makedirs(path, exist_ok=True)
+    plt.savefig(os.path.join(path, im_name, '.png'))
 
 
