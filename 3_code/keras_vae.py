@@ -14,11 +14,13 @@ from keras.utils import plot_model
 from keras.losses import mse, binary_crossentropy
 from keras import optimizers
 from keras.callbacks import ModelCheckpoint
+from keras.models import load_model
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-w", "--weights", help="Load h5 model trained weights")
+    parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)")
+    parser.add_argument("-m", "--model", help="Load a compiled model (.hdf5 file) saved by model.save(filepath)")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
     args = parser.parse_args()
 
@@ -209,9 +211,15 @@ if __name__ == '__main__':
     callbacks_list = [model_checkpoint, tbCallBack]
 
     if args.weights:
+        print(f'loading weights from: {args.weights}')
         vae = vae.load_weights(args.weights)
+
+    elif args.model:
+        print(f'loading model from: {args.model}')
+        vae = load_model(args.model, custom_objects={'my_vae_loss': my_vae_loss})
     else:
         # train the autoencoder
+        print('start the training')
         vae.fit_generator(
             generator=training_generator,
             validation_data=validation_generator,
