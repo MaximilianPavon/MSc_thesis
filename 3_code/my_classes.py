@@ -19,6 +19,8 @@ class DataGenerator(keras.utils.Sequence):
         self.has_cb_and_ext = has_cb_and_ext
         self.colour_band = colour_band
         self.file_extension = file_extension
+        self.n = len(list_IDs)
+        self.step_size = self.n // self.batch_size
 
         if not self.has_cb_and_ext and (not self.colour_band or not self.file_extension):
             raise Exception('When has_cb_and_ext is set to False, both colour_band and file_extension have to be '

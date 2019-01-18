@@ -185,7 +185,7 @@ if __name__ == '__main__':
     # add Keras callbacks for logging and for saving model checkpoints
     tbCallBack = TensorBoardWrapper(
         batch_gen=validation_generator,
-        nb_steps=val_df.shape[0] // validation_generator.batch_size,
+        nb_steps=validation_generator.step_size,
         b_size=validation_generator.batch_size,
         log_dir='../4_runs/logging/TBlogs/' + config_string,
         histogram_freq=10,
@@ -222,7 +222,9 @@ if __name__ == '__main__':
         print('start the training')
         vae.fit_generator(
             generator=training_generator,
+            steps_per_epoch=training_generator.step_size,
             validation_data=validation_generator,
+            validation_steps=validation_generator.step_size,
             epochs=epochs,
             use_multiprocessing=True,
             workers=6,
