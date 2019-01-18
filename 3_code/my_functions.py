@@ -4,6 +4,8 @@ import os
 from keras import backend as K
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox, TextArea
+from skimage import io, exposure
 
 
 def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
@@ -114,51 +116,108 @@ def sampling(args):
     return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
 
-def plot_latent_space(model, data_generator, path='../4_runs/plots/'):
+def plot_latent_space(model, data_generator, example_images, ex_im_informations,  path='../4_runs/plots/latent/'):
     """Plots labels and satellite images as function of 2-dim latent vector
 
     # Arguments:
         :param model: tuple of encoder and decoder model
         :param data_generator: test data_generator
+        :param example_images: path to the example images to display in the 2D latent representation
+        :param ex_im_informations: information for the example_images to which class they belong
         :param path: path for saving the plots
     """
-    encoder , decoder = model
+
+    encoder, decoder = model
+
+    img_size = 512
+    n_channels = 13
 
     os.makedirs(path, exist_ok=True)
 
-    print('display a 2D plot of the satellite images  projected in the latent space')
+    print('display a 2D plot of the satellite images  projected into the latent space')
     filename = os.path.join(path, "z_mean_over_latent.png")
-    z_mean, _, _ = encoder.predict_generator(data_generator, batch_size=data_generator.batch_size)
-    plt.figure(figsize=(12, 10))
-    plt.scatter(z_mean[:, 0], z_mean[:, 1])
-    plt.xlabel("z[0]")
-    plt.ylabel("z[1]")
-    plt.savefig(filename)
-    plt.show()
+    z_mean, _, _ = encoder.predict_generator(data_generator, verbose=1, steps=data_generator.step_size)
 
-    print('display a 30x30 2D manifold of reconstructed satellite images')
-    filename = os.path.join(path, "images_over_latent.png")
+    fig, ax = plt.subplots(figsize=(12, 10))
+
+    ax.scatter(z_mean[:, 0], z_mean[:, 1], s=0.2, zorder=1)
+
+    x_min = np.min(z_mean, axis=0)[0]
+    x_max = np.max(z_mean, axis=0)[0]
+    y_min = np.min(z_mean, axis=0)[1]
+    y_max = np.max(z_mean, axis=0)[1]
+
+    plot_margin_x = (x_max - x_min) * 0.1  # add 2 x 10% to the x range for displaying the images
+    plot_margin_y = (y_max - y_min) * 0.1  # add 2 x 10% to the y range for displaying the images
+
+    ax.set_xlim(left=x_min - plot_margin_x, right=x_max + plot_margin_x)
+    ax.set_ylim(bottom=y_min - plot_margin_y, top=y_max + plot_margin_y)
+    ax.set_xlabel("z[0]")
+    ax.set_ylabel("z[1]")
+
+    for file, info in zip(example_images, ex_im_informations):
+        im = io.imread(file)
+
+        z_mean, _, _ = encoder.predict(
+            np.reshape(im, (1, img_size, img_size, n_channels))
+            # reshape necessary because the encoder expects a 4D array with batch x img_size x img_size x n_channels
+        )
+        z_mean = z_mean[0]
+
+        ax.scatter(z_mean[0], z_mean[1], s=10)
+
+        # display information tag of the image
+        textbox = TextArea(info, minimumdescent=False)
+
+        ab = AnnotationBbox(textbox, z_mean,
+                            xybox=(-50, 90),
+                            xycoords='data',
+                            boxcoords="offset points",
+                            pad=0.1,
+                            )
+        ax.add_artist(ab)
+
+        # display the image itself
+        im_rgb = im[:, :, [3, 2, 1]]
+        im_rgb = exposure.rescale_intensity(im_rgb)
+        imagebox = OffsetImage(im_rgb, zoom=0.1)
+
+        ab = AnnotationBbox(imagebox, z_mean,
+                            xybox=(-50., 50.),
+                            xycoords='data',
+                            boxcoords="offset points",
+                            pad=0.1,
+                            arrowprops=dict(arrowstyle="->"))
+
+        ax.add_artist(ab)
+
+    plt.title('Satellite images projected into the latent space')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.show()
+    plt.clf()
+
     n = 30
-    img_size = 512
-    n_channels = 13
+    print(f'display a {n}x{n} 2D manifold of reconstructed satellite images')
+    filename = os.path.join(path, "images_over_latent.png")
     figure = np.zeros((img_size * n, img_size * n, 3))
     # linearly spaced coordinates corresponding to the 2D plot
     # of satellite images in the latent space
-    grid_x = np.linspace(-4, 4, n)
-    grid_y = np.linspace(-4, 4, n)[::-1]
+    grid_x = np.linspace(x_min - plot_margin_x, x_max + plot_margin_x, n)
+    grid_y = np.linspace(y_min - plot_margin_y, y_max + plot_margin_y, n)[::-1]
 
     for i, yi in enumerate(grid_y):
         for j, xi in enumerate(grid_x):
             z_sample = np.array([[xi, yi]])
             x_decoded = decoder.predict(z_sample)
-            image = x_decoded[0].reshape(img_size, img_size, n_channels)
-            image = image[:, :, [3, 2, 1]]
+            im = x_decoded[0].reshape(img_size, img_size, n_channels)
+            im = im[:, :, [3, 2, 1]]
+            im = exposure.rescale_intensity(im)
 
             # a tiff file contains the raw channels: return [B01,B02,B03,B04,B05,B06,B07,B08,B8A,B09,B10,B11,B12]
             # a rgb images needs the following channels:  return [B04, B03, B02]
             # ==> index [3, 2, 1]
 
-            figure[i * img_size: (i + 1) * img_size, j * img_size: (j + 1) * img_size, :] = image
+            figure[i * img_size: (i + 1) * img_size, j * img_size: (j + 1) * img_size, :] = im
 
     plt.figure(figsize=(10, 10))
     start_range = img_size // 2
@@ -171,5 +230,6 @@ def plot_latent_space(model, data_generator, path='../4_runs/plots/'):
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
     plt.imshow(figure)
-    plt.savefig(filename)
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
+    plt.clf()

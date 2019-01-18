@@ -231,6 +231,22 @@ if __name__ == '__main__':
         vae.save_weights('../4_runs/logging/weights/vae_' + config_string + '.h5')
         print('training done')
 
+    example_images = [
+        '../2_data/04_small_data/noloss/good/0040012601-B_BANDS-S2-L1C.tiff',
+        '../2_data/04_small_data/noloss/good/0040007446-A_BANDS-S2-L1C.tiff',
+        '../2_data/04_small_data/noloss/good/0040012601-A_BANDS-S2-L1C.tiff',
+        '../2_data/04_small_data/noloss/good/0040081814-A_BANDS-S2-L1C.tiff'
+    ]
+
+    ex_im_informations = [
+        'no loss',
+        'only full crop loss',
+        'only partial crop loss',
+        'both partial and full crop loss'
+    ]
+
     plot_latent_space((encoder, decoder),
                       data_generator=test_generator,
-                      path="../4_runs/plots/")
+                      example_images=example_images,
+                      ex_im_informations=ex_im_informations,
+                      path="../4_runs/plots/latent/")
