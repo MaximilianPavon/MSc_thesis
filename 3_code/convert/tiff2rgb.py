@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     im = exposure.rescale_intensity(im)
 
-    path = './2_data/05_png/'
+    path = './2_data/06_png/'
 
     plt.imshow(im)
     plt.title(f'True color of image: {im_name}')
