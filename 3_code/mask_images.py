@@ -26,12 +26,18 @@ def get_output_path(input_path):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--path", help="Specify path, where the project is located."
-                                             "/scratch/cs/ai_croppro")
+    req_grp = parser.add_argument_group(title='required arguments')
+    req_grp.add_argument("-c", "--computer", help="Specify computer: use triton, mac or workstation", required=True)
+    parser.add_argument("-p", "--path", help="Specify path, where the project is located.")
     args = parser.parse_args()
 
     if not args.path:
-        args.path = '/Users/maximilianproll/Dropbox (Aalto)/'
+        if args.computer == 'triton':
+            args.path = '/scratch/cs/ai_croppro'
+        elif args.computer == 'mac':
+            args.path = '/Users/maximilianproll/Dropbox (Aalto)/'
+        elif args.computer == 'workstation':
+            args.path = '/m/cs/scratch/ai_croppro'
 
     # load shape file containing the field parcel geometries
     shape_file = os.path.join(args.path, '2_data/04_small_data/rap_2015_rehuohra_shp/rap_2015_rehuohra.shp')
