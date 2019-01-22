@@ -80,17 +80,13 @@ if __name__ == '__main__':
 
     df = pd.read_csv(params['path_to_csv'])
 
-    # add color spectrum and file extension to field parcel column in order to match to the file name
-    # df['field parcel'] = df['field parcel'] + '_' + color_spectrum
-
     # split data frame into train, validation and test
     train_df, val_df, test_df = split_dataframe(df, params['train_p'], params['val_p'], )
     del df
 
     # create dictionaries of IDs and labels
-    partition = {
-        'train': train_df.index.tolist(), 'validation': val_df.index.tolist(), 'test': test_df.index.tolist()
-    }
+    partition = {'train': train_df.index.tolist(), 'validation': val_df.index.tolist(), 'test': test_df.index.tolist()}
+
     labels = {**train_df['full crop loss scaled'].to_dict(), **val_df['full crop loss scaled'].to_dict(),
               **test_df['full crop loss scaled'].to_dict()}
 
@@ -250,6 +246,7 @@ if __name__ == '__main__':
     elif args.model:
         print(f'loading model from: {args.model}')
         vae = load_model(args.model, custom_objects={'my_vae_loss': my_vae_loss})
+
     else:
         # train the autoencoder
         print('start the training')
@@ -266,6 +263,7 @@ if __name__ == '__main__':
         vae.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/vae_' + config_string + '.h5'))
         print('training done')
 
+    # define example images and their information tag for plotting them in the latent space
     example_images = [
         os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040012601-B_BANDS-S2-L1C.tiff'),
         os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040007446-A_BANDS-S2-L1C.tiff'),
