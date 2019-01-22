@@ -6,6 +6,7 @@ import glob
 import rasterio.mask
 from tqdm import tqdm
 import numpy as np
+import sys
 
 
 def get_field_id(file_paths):
@@ -17,7 +18,10 @@ def get_field_id(file_paths):
 
 def get_output_path(input_path):
     split_path = input_path.split('/')
-    split_path[5] = '05_images_masked'
+    if args.computer == 'workstation':
+        split_path[6] = '05_images_masked'
+    else:
+        split_path[5] = '05_images_masked'
     output_path = '/'.join(split_path)
     os.makedirs('/'.join(split_path[0:-1]), exist_ok=True)
     return output_path
@@ -27,7 +31,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     req_grp = parser.add_argument_group(title='required arguments')
-    req_grp.add_argument("-c", "--computer", help="Specify computer: use triton, mac or workstation", required=True)
+    req_grp.add_argument("-c", "--computer", help="Specify computer: use \'triton\', \'mac\' or \'workstation\'.", required=True)
     parser.add_argument("-p", "--path", help="Specify path, where the project is located.")
     args = parser.parse_args()
 
@@ -38,6 +42,8 @@ if __name__ == '__main__':
             args.path = '/Users/maximilianproll/Dropbox (Aalto)/'
         elif args.computer == 'workstation':
             args.path = '/m/cs/scratch/ai_croppro'
+        else:
+            sys.exit('Please specify the computer this programme runs on using \'triton\', \'mac\' or \'workstation\'')
 
     # load shape file containing the field parcel geometries
     shape_file = os.path.join(args.path, '2_data/04_small_data/rap_2015_rehuohra_shp/rap_2015_rehuohra.shp')
