@@ -3,6 +3,8 @@ from my_functions import split_dataframe, sampling, plot_latent_space
 
 import datetime
 import argparse
+import sys
+import os
 import pandas as pd
 
 from keras.layers import Dense, Input
@@ -22,14 +24,46 @@ if __name__ == '__main__':
     parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)")
     parser.add_argument("-m", "--model", help="Load a compiled model (.hdf5 file) saved by model.save(filepath)")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
+
+    parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
+
+    req_grp = parser.add_argument_group(title='required arguments')
+    req_grp.add_argument("-c", "--computer", help="Specify computer: use \'triton\', \'mac\' or \'workstation\'.",
+                         required=True)
     args = parser.parse_args()
+
+    if not args.project_path:
+        if args.computer == 'triton':
+            args.project_path = '/scratch/cs/ai_croppro'
+        elif args.computer == 'mac':
+            args.project_path = '/Users/maximilianproll/Dropbox (Aalto)/'
+        elif args.computer == 'workstation':
+            args.project_path = '/m/cs/scratch/ai_croppro'
+        else:
+            sys.exit('Please specify the computer this programme runs on using \'triton\', \'mac\' or \'workstation\'')
+
+    if args.model and not args.project_path in args.model:
+
+        if '..' in args.model:
+            # remove leading '..'
+            args.model = '/'.join(args.model.split('/')[1:])
+
+        args.model = os.path.join(args.project_path, args.model)
+        
+    if args.weights and not args.project_path in args.weights:
+
+        if '..' in args.weights:
+            # remove leading '..'
+            args.weights = '/'.join(args.weights.split('/')[1:])
+
+        args.weights = os.path.join(args.project_path, args.weights)
 
     # Parameters
     params = {
-        'path_to_csv': '../2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed.csv',
+        'path_to_csv': os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed.csv'),
         'train_p': 0.8,
         'val_p': 0.1,
-        'path_to_data': '../2_data/03_data/',
+        'path_to_data': os.path.join(args.project_path, '2_data/03_data/'),
         'has_cb_and_ext': True,
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
@@ -44,7 +78,6 @@ if __name__ == '__main__':
         'epochs': 1000
     }
 
-    # df = preprocess_df(params['path_to_csv'], params['path_to_data'], params['colour_band'], params['file_extension'])
     df = pd.read_csv(params['path_to_csv'])
 
     # add color spectrum and file extension to field parcel column in order to match to the file name
@@ -127,7 +160,7 @@ if __name__ == '__main__':
     # instantiate encoder model
     encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
     encoder.summary()
-    plot_model(encoder, to_file='../4_runs/plots/vae_encoder.png', show_shapes=True)
+    plot_model(encoder, to_file=os.path.join(args.project_path, '4_runs/plots/vae_encoder.png'), show_shapes=True)
 
     # build decoder model
     latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
@@ -152,7 +185,7 @@ if __name__ == '__main__':
     # instantiate decoder model
     decoder = Model(latent_inputs, outputs, name='decoder')
     decoder.summary()
-    plot_model(decoder, to_file='../4_runs/plots/vae_decoder.png', show_shapes=True)
+    plot_model(decoder, to_file=os.path.join(args.project_path, '4_runs/plots/vae_decoder.png'), show_shapes=True)
 
     # instantiate VAE model
     outputs = decoder(encoder(inputs)[2])
@@ -176,7 +209,7 @@ if __name__ == '__main__':
     rmsprop = optimizers.RMSprop(lr=0.00001)
     vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'])
     vae.summary()
-    plot_model(vae, to_file='../4_runs/plots/vae.png', show_shapes=True)
+    plot_model(vae, to_file=os.path.join(args.project_path, '4_runs/plots/vae.png'), show_shapes=True)
 
     # folder extension for bookkeeping
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -187,7 +220,7 @@ if __name__ == '__main__':
         batch_gen=validation_generator,
         nb_steps=validation_generator.step_size,
         b_size=validation_generator.batch_size,
-        log_dir='../4_runs/logging/TBlogs/' + config_string,
+        log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + config_string),
         histogram_freq=10,
         batch_size=validation_generator.batch_size,
         write_graph=True,
@@ -201,7 +234,7 @@ if __name__ == '__main__':
     )
 
     model_checkpoint = ModelCheckpoint(
-        filepath='../4_runs/logging/checkpoints/' + config_string + '_{epoch:04d}-{val_loss:.2f}.hdf5',
+        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/' + config_string + '_{epoch:04d}-{val_loss:.2f}.hdf5'),
         verbose=1,
         save_best_only=True,
         mode='min',
@@ -230,14 +263,14 @@ if __name__ == '__main__':
             workers=6,
             callbacks=callbacks_list
         )
-        vae.save_weights('../4_runs/logging/weights/vae_' + config_string + '.h5')
+        vae.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/vae_' + config_string + '.h5'))
         print('training done')
 
     example_images = [
-        '../2_data/04_small_data/noloss/good/0040012601-B_BANDS-S2-L1C.tiff',
-        '../2_data/04_small_data/noloss/good/0040007446-A_BANDS-S2-L1C.tiff',
-        '../2_data/04_small_data/noloss/good/0040012601-A_BANDS-S2-L1C.tiff',
-        '../2_data/04_small_data/noloss/good/0040081814-A_BANDS-S2-L1C.tiff'
+        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040012601-B_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040007446-A_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040012601-A_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040081814-A_BANDS-S2-L1C.tiff')
     ]
 
     ex_im_informations = [
@@ -251,4 +284,5 @@ if __name__ == '__main__':
                       data_generator=test_generator,
                       example_images=example_images,
                       ex_im_informations=ex_im_informations,
-                      path="../4_runs/plots/latent/")
+                      path=os.path.join(args.project_path, '4_runs/plots/latent/')
+                      )
