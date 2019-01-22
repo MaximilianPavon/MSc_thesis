@@ -32,30 +32,30 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     req_grp = parser.add_argument_group(title='required arguments')
     req_grp.add_argument("-c", "--computer", help="Specify computer: use \'triton\', \'mac\' or \'workstation\'.", required=True)
-    parser.add_argument("-p", "--path", help="Specify path, where the project is located.")
+    parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
     args = parser.parse_args()
 
-    if not args.path:
+    if not args.project_path:
         if args.computer == 'triton':
-            args.path = '/scratch/cs/ai_croppro'
+            args.project_path = '/scratch/cs/ai_croppro'
         elif args.computer == 'mac':
-            args.path = '/Users/maximilianproll/Dropbox (Aalto)/'
+            args.project_path = '/Users/maximilianproll/Dropbox (Aalto)/'
         elif args.computer == 'workstation':
-            args.path = '/m/cs/scratch/ai_croppro'
+            args.project_path = '/m/cs/scratch/ai_croppro'
         else:
             sys.exit('Please specify the computer this programme runs on using \'triton\', \'mac\' or \'workstation\'')
 
     # load shape file containing the field parcel geometries
-    shape_file = os.path.join(args.path, '2_data/04_small_data/rap_2015_rehuohra_shp/rap_2015_rehuohra.shp')
+    shape_file = os.path.join(args.project_path, '2_data/04_small_data/rap_2015_rehuohra_shp/rap_2015_rehuohra.shp')
     vector_df = gpd.read_file(shape_file)
 
     # get path to all the images
-    df = pd.read_csv(os.path.join(args.path, '2_data/04_small_data/fof_train_triton.csv'))
-    images = [os.path.join(args.path, i) for i in df['triton_path'].tolist()]
+    df = pd.read_csv(os.path.join(args.project_path, '2_data/04_small_data/fof_train_triton.csv'))
+    images = [os.path.join(args.project_path, i) for i in df['triton_path'].tolist()]
 
-    # images = glob.glob(os.path.join(args.path, '2_data/04_small_data/noloss/good/*.tiff'))
-    # images += glob.glob(os.path.join(args.path, '2_data/04_small_data/noloss/not_good/*.tiff'))
-    # images += glob.glob(os.path.join(args.path, '2_data/04_small_data/fullandpartial/*.tiff'))
+    # images = glob.glob(os.path.join(args.project_path, '2_data/04_small_data/noloss/good/*.tiff'))
+    # images += glob.glob(os.path.join(args.project_path, '2_data/04_small_data/noloss/not_good/*.tiff'))
+    # images += glob.glob(os.path.join(args.project_path, '2_data/04_small_data/fullandpartial/*.tiff'))
     nimages = len(images)
 
     print('{0:7d} images'.format(nimages))
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         # print('images written: {0}'.format(i))
 
     np.savetxt(
-        os.path.join(args.path, '2_data/05_images_masked/', 'not_found.csv'),
+        os.path.join(args.project_path, '2_data/05_images_masked/', 'not_found.csv'),
         np.array(not_found),
         fmt='%s'
     )
