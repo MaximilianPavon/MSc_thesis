@@ -53,9 +53,6 @@ if __name__ == '__main__':
     df = pd.read_csv(os.path.join(args.project_path, '2_data/04_small_data/fof_train_triton.csv'))
     images = [os.path.join(args.project_path, i) for i in df['triton_path'].tolist()]
 
-    # images = glob.glob(os.path.join(args.project_path, '2_data/04_small_data/noloss/good/*.tiff'))
-    # images += glob.glob(os.path.join(args.project_path, '2_data/04_small_data/noloss/not_good/*.tiff'))
-    # images += glob.glob(os.path.join(args.project_path, '2_data/04_small_data/fullandpartial/*.tiff'))
     nimages = len(images)
 
     print('{0:7d} images'.format(nimages))
@@ -80,7 +77,7 @@ if __name__ == '__main__':
 
         with rasterio.open(out_file, "w", **out_kwargs) as dest:
             dest.write(out_im)
-        # print('images written: {0}'.format(i))
+        # print(f'\n image loaded from {image_path} \n and written to {out_file}')
 
     np.savetxt(
         os.path.join(args.project_path, '2_data/05_images_masked/', 'not_found.csv'),
