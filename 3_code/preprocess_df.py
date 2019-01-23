@@ -38,6 +38,6 @@ if __name__ == '__main__':
     elif not '.csv' in args.out_file:
         args.out_file = args.out_file + '.csv'
 
-    new_path = os.path.join(*params['path_to_csv'].split('/')[0:-1], args.out_file)
+    new_path = os.path.join('/', *params['path_to_csv'].split('/')[0:-1], args.out_file)
     df.to_csv(new_path, index=False)
     print(f'preprocessed .csv file saved under: {new_path}')
