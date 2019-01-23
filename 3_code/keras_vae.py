@@ -60,10 +60,10 @@ if __name__ == '__main__':
 
     # Parameters
     params = {
-        'path_to_csv': os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed.csv'),
+        'path_to_csv': os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_masked.csv'),
         'train_p': 0.8,
         'val_p': 0.1,
-        'path_to_data': os.path.join(args.project_path, '2_data/03_data/'),
+        'path_to_data': os.path.join(args.project_path, '2_data/05_images_masked/'),
         'has_cb_and_ext': True,
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',

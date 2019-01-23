@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     params = {
         'path_to_csv': os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.csv'),
-        'path_to_data': os.path.join(args.project_path, '2_data/03_data/'),
+        'path_to_data': os.path.join(args.project_path, '2_data/05_images_masked/'),
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
     }
