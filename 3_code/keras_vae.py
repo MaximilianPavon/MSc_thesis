@@ -265,19 +265,18 @@ if __name__ == '__main__':
 
     # define example images and their information tag for plotting them in the latent space
     example_images = [
-        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040012601-B_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040007446-A_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040012601-A_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/04_small_data/noloss/good/0040081814-A_BANDS-S2-L1C.tiff')
+        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0040491234-A_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/05_images_masked/dataset4/0090440170-A_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0040506590-A_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/9810286471-A_BANDS-S2-L1C.tiff')
     ]
 
     ex_im_informations = [
-        'no loss',
         'only full crop loss',
-        'only partial crop loss',
         'both partial and full crop loss'
+        'no loss',
+        'only partial crop loss',
     ]
-
     plot_latent_space((encoder, decoder),
                       data_generator=test_generator,
                       example_images=example_images,
