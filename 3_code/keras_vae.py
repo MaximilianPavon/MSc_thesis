@@ -228,7 +228,7 @@ if __name__ == '__main__':
         embeddings_layer_names=None,
         embeddings_metadata=None,
         embeddings_data=None,
-        update_freq='epoch',
+        # update_freq='epoch',
     )
 
     model_checkpoint = ModelCheckpoint(
