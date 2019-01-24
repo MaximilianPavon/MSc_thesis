@@ -71,7 +71,7 @@ if __name__ == '__main__':
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
         'dim': (512, 512),
-        'batch_size': 32,
+        'batch_size': 128,
         'n_channels': 13,
         'shuffle': True,
         'n_Conv': 6,
@@ -260,7 +260,7 @@ if __name__ == '__main__':
             validation_steps=validation_generator.step_size,
             epochs=epochs,
             use_multiprocessing=True,
-            workers=6,
+            workers=os.cpu_count(),
             callbacks=callbacks_list
         )
         vae.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/vae_' + config_string + '.h5'))
