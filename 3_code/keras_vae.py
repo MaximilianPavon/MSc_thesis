@@ -71,14 +71,14 @@ if __name__ == '__main__':
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
         'dim': (512, 512),
-        'batch_size': 128,
+        'batch_size': 64,
         'n_channels': 13,
         'shuffle': True,
         'n_Conv': 6,
         'kernel_size': 3,
         'filters': 20,
         'latent_dim': 2,
-        'epochs': 1000
+        'epochs': 100
     }
 
     df = pd.read_csv(params['path_to_csv'])
