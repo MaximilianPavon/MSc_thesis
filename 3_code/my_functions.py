@@ -2,10 +2,15 @@ import pandas as pd
 import numpy as np
 import os
 from keras import backend as K
+from tensorflow.python.client import device_lib
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, TextArea
 from skimage import io, exposure
+
+def get_available_gpus():
+    local_device_protos = device_lib.list_local_devices()
+    return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
 
 def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):

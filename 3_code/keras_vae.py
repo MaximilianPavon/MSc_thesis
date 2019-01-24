@@ -1,5 +1,5 @@
 from my_classes import DataGenerator, TensorBoardWrapper
-from my_functions import split_dataframe, sampling, plot_latent_space
+from my_functions import get_available_gpus, split_dataframe, sampling, plot_latent_space
 
 import datetime
 import argparse
@@ -57,6 +57,8 @@ if __name__ == '__main__':
             args.weights = '/'.join(args.weights.split('/')[1:])
 
         args.weights = os.path.join(args.project_path, args.weights)
+
+    print(f'print available GPUs: \n {get_available_gpus()}')
 
     # Parameters
     params = {
