@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
 
     parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
+    parser.add_argument("-d", "--data_path", help="Specify path, where the data is located. E.g. /tmp/$SLURM_JOB_ID/05_images_masked/ ")
 
     req_grp = parser.add_argument_group(title='required arguments')
     req_grp.add_argument("-c", "--computer", help="Specify computer: use \'triton\', \'mac\' or \'workstation\'.",
@@ -65,7 +66,7 @@ if __name__ == '__main__':
         'path_to_csv': os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_masked.csv'),
         'train_p': 0.8,
         'val_p': 0.1,
-        'path_to_data': os.path.join(args.project_path, '2_data/05_images_masked/'),
+        'path_to_data': args.data_path if args.data_path else os.path.join(args.project_path, '2_data/05_images_masked/'),
         'has_cb_and_ext': True,
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
