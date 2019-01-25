@@ -251,8 +251,10 @@ if __name__ == '__main__':
         print(f'loading models from: {args.model}')
         vae = load_model(os.path.join(args.model, 'vae.hdf5'), custom_objects={'my_vae_loss': my_vae_loss})
         encoder = load_model(os.path.join(args.model, 'encoder.hdf5'))
+        encoder.compile(optimizer=rmsprop, loss='mse')
         decoder = load_model(os.path.join(args.model, 'decoder.hdf5'))
-
+        decoder.compile(optimizer=rmsprop, loss='mse')
+        print('models loaded')
     else:
         # train the autoencoder
         print('start the training')
@@ -268,15 +270,18 @@ if __name__ == '__main__':
         )
         print('training done')
 
-        # save models
-        vae.save(os.path.join(args.project_path, '4_runs/logging/models/', config_string, 'vae.hdf5'))
-        encoder.save(os.path.join(args.project_path, '4_runs/logging/models/', config_string, 'encoder.hdf5'))
-        decoder.save(os.path.join(args.project_path, '4_runs/logging/models/', config_string, 'decoder.hdf5'))
+        # save models and weights
+        dir_models = os.path.join(args.project_path, '4_runs/logging/models/', config_string)
+        os.makedirs(dir_models, exist_ok=True)
+        vae.save(os.path.join(dir_models, 'vae.hdf5'))
+        encoder.save(os.path.join(dir_models, 'encoder.hdf5'))
+        decoder.save(os.path.join(dir_models, 'decoder.hdf5'))
 
-        # save weights
-        vae.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/vae_' + config_string + '.h5'))
-        encoder.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/encoder_' + config_string + '.h5'))
-        decoder.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/decoder_' + config_string + '.h5'))
+        dir_weights = os.path.join(args.project_path, '4_runs/logging/weights/')
+        vae.save_weights(dir_weights + 'vae_' + config_string + '.h5')
+        encoder.save_weights(dir_weights + 'encoder_' + config_string + '.h5')
+        decoder.save_weights(dir_weights + 'decoder_' + config_string + '.h5')
+        print('models and weights saved')
 
     # define example images and their information tag for plotting them in the latent space
     example_images = [
