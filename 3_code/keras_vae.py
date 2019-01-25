@@ -22,7 +22,8 @@ from keras.models import load_model
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)")
-    parser.add_argument("-m", "--model", help="Load a compiled model (.hdf5 file) saved by model.save(filepath)")
+    parser.add_argument("-m", "--model", help="Load compiled models (.hdf5 file) saved by model.save(filepath). Path "
+                                              "until parent directory: e.g \'4_runs/logging/models/")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
 
     parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
@@ -233,7 +234,7 @@ if __name__ == '__main__':
     )
 
     model_checkpoint = ModelCheckpoint(
-        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/' + config_string + '.hdf5'),
+        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/vae_' + config_string + '.hdf5'),
         verbose=1,
         save_best_only=True,
         mode='min',
@@ -247,8 +248,10 @@ if __name__ == '__main__':
         vae = vae.load_weights(args.weights)
 
     elif args.model:
-        print(f'loading model from: {args.model}')
-        vae = load_model(args.model, custom_objects={'my_vae_loss': my_vae_loss})
+        print(f'loading models from: {args.model}')
+        vae = load_model(os.path.join(args.model, 'vae.hdf5'), custom_objects={'my_vae_loss': my_vae_loss})
+        encoder = load_model(os.path.join(args.model, 'encoder.hdf5'))
+        decoder = load_model(os.path.join(args.model, 'decoder.hdf5'))
 
     else:
         # train the autoencoder
@@ -263,8 +266,17 @@ if __name__ == '__main__':
             workers=os.cpu_count(),
             callbacks=callbacks_list
         )
-        vae.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/vae_' + config_string + '.h5'))
         print('training done')
+
+        # save models
+        vae.save(os.path.join(args.project_path, '4_runs/logging/models/', config_string, 'vae.hdf5'))
+        encoder.save(os.path.join(args.project_path, '4_runs/logging/models/', config_string, 'encoder.hdf5'))
+        decoder.save(os.path.join(args.project_path, '4_runs/logging/models/', config_string, 'decoder.hdf5'))
+
+        # save weights
+        vae.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/vae_' + config_string + '.h5'))
+        encoder.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/encoder_' + config_string + '.h5'))
+        decoder.save_weights(os.path.join(args.project_path, '4_runs/logging/weights/decoder_' + config_string + '.h5'))
 
     # define example images and their information tag for plotting them in the latent space
     example_images = [
