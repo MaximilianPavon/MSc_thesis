@@ -78,7 +78,7 @@ if __name__ == '__main__':
         'kernel_size': 3,
         'filters': 20,
         'latent_dim': 2,
-        'epochs': 100
+        'epochs': 70
     }
 
     df = pd.read_csv(params['path_to_csv'])
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     )
 
     model_checkpoint = ModelCheckpoint(
-        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/' + config_string + '_{epoch:04d}-{val_loss:.2f}.hdf5'),
+        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/' + config_string + '.hdf5'),
         verbose=1,
         save_best_only=True,
         mode='min',
@@ -284,5 +284,5 @@ if __name__ == '__main__':
                       data_generator=test_generator,
                       example_images=example_images,
                       ex_im_informations=ex_im_informations,
-                      path=os.path.join(args.project_path, '4_runs/plots/latent/')
+                      path=os.path.join(args.project_path, '4_runs/plots/latent_' + config_string)
                       )
