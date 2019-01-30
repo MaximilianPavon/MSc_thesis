@@ -138,13 +138,13 @@ def plot_latent_space(model, data_generator, example_images, ex_im_informations,
 
     os.makedirs(path, exist_ok=True)
 
-    print('display a 2D plot of the satellite images  projected into the latent space')
+    print('display a 2D plot of the satellite images projected into the latent space')
     filename = os.path.join(path, "z_mean_over_latent.png")
     z_mean, _, _ = encoder.predict_generator(data_generator, verbose=1, steps=data_generator.step_size)
 
     fig, ax = plt.subplots(figsize=(12, 10))
 
-    ax.scatter(z_mean[:, 0], z_mean[:, 1], s=0.2, zorder=1)
+    ax.scatter(z_mean[:, 0], z_mean[:, 1], s=3, zorder=1)
 
     x_min = np.min(z_mean, axis=0)[0]
     x_max = np.max(z_mean, axis=0)[0]
@@ -174,7 +174,7 @@ def plot_latent_space(model, data_generator, example_images, ex_im_informations,
         textbox = TextArea(info, minimumdescent=False)
 
         ab = AnnotationBbox(textbox, z_mean,
-                            xybox=(-50, 90),
+                            xybox=(-80, 160),
                             xycoords='data',
                             boxcoords="offset points",
                             pad=0.1,
@@ -184,10 +184,10 @@ def plot_latent_space(model, data_generator, example_images, ex_im_informations,
         # display the image itself
         im_rgb = im[:, :, [3, 2, 1]]
         im_rgb = exposure.rescale_intensity(im_rgb)
-        imagebox = OffsetImage(im_rgb, zoom=0.1)
+        imagebox = OffsetImage(im_rgb, zoom=0.25)
 
         ab = AnnotationBbox(imagebox, z_mean,
-                            xybox=(-50., 50.),
+                            xybox=(-80., 80.),
                             xycoords='data',
                             boxcoords="offset points",
                             pad=0.1,
