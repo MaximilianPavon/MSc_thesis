@@ -4,10 +4,10 @@ __pycache__/
 .fuse_*
 *.png
 *.pdf
-events.out.tfevents.*
 *.idea/
 .ipynb_checkpoints/
 ._*
+slurm-*.out
 
 Icon?
 
@@ -17,4 +17,4 @@ Icon?
 
 # Folder
 2_data/
-
+4_runs/
