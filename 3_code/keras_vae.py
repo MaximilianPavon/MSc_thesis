@@ -286,14 +286,14 @@ if __name__ == '__main__':
     # define example images and their information tag for plotting them in the latent space
     example_images = [
         os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0040491234-A_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/05_images_masked/dataset4/0090440170-A_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0040506590-A_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/8930312979-A_BANDS-S2-L1C.tiff'),
+        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0090248594-A_BANDS-S2-L1C.tiff'),
         os.path.join(args.project_path, '2_data/05_images_masked/dataset1/9810286471-A_BANDS-S2-L1C.tiff')
     ]
 
     ex_im_informations = [
         'only full crop loss',
-        'both partial and full crop loss'
+        'both partial and full crop loss',
         'no loss',
         'only partial crop loss',
     ]

@@ -25,8 +25,4 @@ cd /scratch/cs/ai_croppro/                              # go back to project fol
                                                         # - temporary directory as input for the images
                                                         # - previously created model as input
 
-for i in `seq 1 30`;                                    # create 30 different plots
-        do
-            echo $i
-            python 3_code/keras_vae.py -c triton --data_path /tmp/$SLURM_JOB_ID/05_images_masked/ -m 4_runs/logging/checkpoints/6n_Conv_2019-01-24_19-43-28_0095-55149.27.hdf5
-        done
+python 3_code/keras_vae.py -c triton --data_path /tmp/$SLURM_JOB_ID/05_images_masked/ -m 4_runs/logging/models/6n_Conv_2019-01-25_19-59-33/
