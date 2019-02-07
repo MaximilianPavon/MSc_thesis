@@ -21,4 +21,3 @@ dependencies:
     - edward
     - sentinelhub
     - gpustat
-# prefix: /u/44/prollm1/unix/.conda/envs/edward
