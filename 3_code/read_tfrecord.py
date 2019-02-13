@@ -75,7 +75,10 @@ if __name__ == '__main__':
             print(p_cl)
             print(im_path)
 
-            im_loaded = io.imread(im_path.numpy().decode('utf-8'))
+            im_path = im_path.numpy().decode('utf-8')
+            im_path = os.path.join(args.project_path, im_path)
+
+            im_loaded = io.imread(im_path)
             print(np.array_equal(im1.numpy(), im_loaded))
 
             print()

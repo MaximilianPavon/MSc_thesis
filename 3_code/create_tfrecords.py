@@ -88,7 +88,8 @@ if __name__ == '__main__':
         print(f'creating TFRecords file: {f_name}')
 
         # List of image paths, np array of labels
-        im_list = [os.path.join(params['path_to_data'], v) for v in data_frame.index.tolist()]
+        im_path = [os.path.join('2_data/05_images_masked/', v ) for v in data_frame.index.tolist()]
+        im_full_path_arr = [os.path.join(args.project_path, v) for v in im_path]
         f_cl_labels_arr = data_frame['full crop loss scaled'].values
         p_cl_labels_arr = data_frame['partial crop loss scaled'].values
 
@@ -96,15 +97,20 @@ if __name__ == '__main__':
         tf_records_filename = os.path.join(params['path_to_data'], f_name + '_' + str(file_counter) + '.tfrecord')
         writer = tf.python_io.TFRecordWriter(tf_records_filename)
 
+        n_files = len(data_frame)
+        outF = open(os.path.join(params['path_to_data'], 'n_files_' + f_name + '.txt'), 'w')
+        outF.write(str(n_files))
+        outF.close()
+
         # Loop over images and labels, wrap in TF Examples, write away to TFRecord file
-        for i in tqdm(range(len(data_frame)), total=len(data_frame)):
+        for i in tqdm(range(n_files), total=n_files):
             f_cl_label = f_cl_labels_arr[i].astype(np.float32)
             p_cl_label = p_cl_labels_arr[i].astype(np.float32)
 
-            image = io.imread(im_list[i])
+            image = io.imread(im_full_path_arr[i])
 
             # serialize the bytes representation of the image, the crop los values as well as the image path
-            example_serialized = serialize_example(image.tostring(), f_cl_label, p_cl_label, im_list[i].encode('utf-8'))
+            example_serialized = serialize_example(image.tostring(), f_cl_label, p_cl_label, im_path[i].encode('utf-8'))
 
             file_size = os.stat(tf_records_filename).st_size / (1024 ** 3)  # convert file size in bytes to GB
 
