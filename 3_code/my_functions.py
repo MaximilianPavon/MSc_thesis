@@ -136,6 +136,11 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
 
     encoder, decoder = model
 
+    # models need to be compiled before they can be used for .predict()
+    rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
+    encoder.compile(optimizer=rmsprop, loss='mse')
+    decoder.compile(optimizer=rmsprop, loss='mse')
+
     img_size = 512
     n_channels = 13
 
