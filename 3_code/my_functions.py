@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
 import os
-from keras import backend as K
+import tensorflow as tf
+from tensorflow.python.client import device_lib
+
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, TextArea
@@ -9,7 +11,8 @@ from skimage import io, exposure
 
 
 def get_available_gpus():
-    return K.tensorflow_backend._get_available_gpus()
+    local_device_protos = device_lib.list_local_devices()
+    return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
 
 def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
@@ -113,14 +116,14 @@ def sampling(args):
     """
 
     z_mean, z_log_var = args
-    batch = K.shape(z_mean)[0]
-    dim = K.int_shape(z_mean)[1]
+    batch = tf.keras.backend.shape(z_mean)[0]
+    dim = tf.keras.backend.int_shape(z_mean)[1]
     # by default, random_normal has mean=0 and std=1.0
-    epsilon = K.random_normal(shape=(batch, dim))
-    return z_mean + K.exp(0.5 * z_log_var) * epsilon
+    epsilon = tf.keras.backend.random_normal(shape=(batch, dim))
+    return z_mean + tf.keras.backend.exp(0.5 * z_log_var) * epsilon
 
 
-def plot_latent_space(model, data_generator, example_images, ex_im_informations, path='../4_runs/plots/latent/'):
+def plot_latent_space(model, dataset, example_images, ex_im_informations, path='../4_runs/plots/latent/'):
     """Plots labels and satellite images as function of 2-dim latent vector
 
     # Arguments:
