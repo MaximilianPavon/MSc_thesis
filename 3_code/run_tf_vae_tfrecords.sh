@@ -3,7 +3,7 @@
 # request resources
 # -----------------------
 #SBATCH --time=0-12:00:00
-#SBATCH --mem-per-cpu 32G
+#SBATCH --mem-per-cpu 10G
 #SBATCH --cpus-per-task=12
 
 # TODO: set num of cpu properly
