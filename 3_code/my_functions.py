@@ -128,7 +128,7 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
 
     # Arguments:
         :param model: tuple of encoder and decoder model
-        :param data_generator: test data_generator
+        :param dataset: test dataset
         :param example_images: path to the example images to display in the 2D latent representation
         :param ex_im_informations: information for the example_images to which class they belong
         :param path: path for saving the plots
@@ -143,8 +143,18 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
 
     print('display a 2D plot of the satellite images projected into the latent space')
     filename = os.path.join(path, "z_mean_over_latent.png")
-    z_mean, _, _ = encoder.predict_generator(data_generator, verbose=1, steps=data_generator.step_size)
 
+    # hacky way to bypass model.predict to expect also target variables when used with tf.data.Dataset object
+    sess = tf.Session()
+    # Create an iterator over the dataset and initialize the iterator
+    iterator = dataset.make_initializable_iterator()
+    sess.run(iterator.initializer)
+    # Neural Net Input (images, labels)
+    x1, x2 = iterator.get_next()
+    # get access to
+    x1_arr = sess.run(x1)
+
+    z_mean, _, _ = encoder.predict(x1_arr, verbose=1)
     fig, ax = plt.subplots(figsize=(12, 10))
 
     ax.scatter(z_mean[:, 0], z_mean[:, 1], s=3, zorder=1)
