@@ -1,4 +1,4 @@
-from my_functions import get_available_gpus, sampling, plot_latent_space
+from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset
 
 import tensorflow as tf
 import datetime
@@ -10,71 +10,6 @@ if platform.system() == 'Darwin':
     # fix for macOS issue regarding library import error:
     # OMP: Error #15: Initializing libiomp5.dylib, but found libiomp5.dylib already initialized.
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
-def _parse_function(example_proto):
-    feature_description = {
-        'image': tf.FixedLenFeature([], tf.string),
-        'full_crop_loss_label': tf.FixedLenFeature([], tf.float32),
-        'partial_crop_loss_label': tf.FixedLenFeature([], tf.float32),
-        'image_path': tf.FixedLenFeature([], tf.string, default_value=''),
-    }
-
-    # First: parse the input tf.Example proto using the dictionary above.
-    parsed_features = tf.parse_single_example(example_proto, feature_description)
-
-    # Decode saved image string into an array
-    image = tf.decode_raw(parsed_features['image'], tf.float32)  # tensor is still flattened
-    image = tf.reshape(image, (512, 512, 13))
-
-    f_cl = parsed_features['full_crop_loss_label']
-    p_cl = parsed_features['partial_crop_loss_label']
-
-    im_path = parsed_features['image_path']
-    # im_path is still an encoded tf.Tensor and
-    # thus needs to be converted to numpy with .numpy() and then decoded decode('utf-8')
-
-    # Second: return a tuple of desired variables
-    # return image, image, f_cl, p_cl, im_path
-    return image, image
-
-def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
-    """inspired from https://www.tensorflow.org/guide/performance/datasets#input_pipeline_structure"""
-
-    print(f'reading TFRecords file: {name}')
-
-    # tf_records_filenames = glob.glob(os.path.join(path, name + '_*.tfrecord'))
-
-    files = tf.data.Dataset.list_files(os.path.join(path, name + '_*.tfrecord'))
-
-    f = open(os.path.join(path, 'n_files_' + name + '.txt'), 'r')
-    n_files = int(f.read())
-    steps_per_epoch = n_files // batch_size
-
-    # Construct a TFRecordDataset
-    # dataset = tf.data.TFRecordDataset(tf_records_filenames)
-    # dataset = files.interleave(tf.data.TFRecordDataset)
-
-    # better for data stored remotely
-    dataset = files.apply(tf.data.experimental.parallel_interleave(
-        tf.data.TFRecordDataset, cycle_length=num_parallel_readers))
-
-    # Set the number of datapoints you want to load and shuffle
-    # dataset = dataset.shuffle(n_files)
-
-    # Maps the parser on every filepath in the array. Set the number of parallel loaders here
-    dataset = dataset.map(_parse_function, num_parallel_calls=os.cpu_count())
-    dataset = dataset.batch(batch_size=batch_size)
-
-    # replaces .map and .batch -- but DEPRECATED??
-    # dataset = dataset.apply(tf.data.experimental.map_and_batch(
-    #     map_func=_parse_function, batch_size=batch_size))
-
-    dataset = dataset.prefetch(prefetch_size)
-
-    # This dataset will go on forever
-    dataset = dataset.repeat()
-
-    return dataset, steps_per_epoch
 
 
 if __name__ == '__main__':
