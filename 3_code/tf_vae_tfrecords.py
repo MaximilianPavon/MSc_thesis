@@ -1,12 +1,13 @@
-from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset
+from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset, get_device_util, get_device_id, get_OS
 
 import tensorflow as tf
 import datetime
 import argparse
 import sys
 import os
-import platform
-if platform.system() == 'Darwin':
+
+op_sys = get_OS()
+if op_sys == 'Darwin':
     # fix for macOS issue regarding library import error:
     # OMP: Error #15: Initializing libiomp5.dylib, but found libiomp5.dylib already initialized.
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
@@ -54,6 +55,7 @@ if __name__ == '__main__':
         args.weights = os.path.join(args.project_path, args.weights)
 
     print(f'available GPUs: \n {get_available_gpus()}')
+    gpu_device_ID = get_device_id()
 
     # Parameters
     params = {
@@ -171,9 +173,11 @@ if __name__ == '__main__':
         vae_loss = tf.keras.backend.mean(reconstruction_loss + kl_loss)
         return vae_loss
 
+    def gpu_util(y_true, y_pred):
+        return tf.convert_to_tensor(get_device_util(gpu_device_ID))
 
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
-    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'], sample_weight_mode=None)
+    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy', gpu_util], sample_weight_mode=None)
     vae.summary()
     tf.keras.utils.plot_model(vae, to_file=os.path.join(args.project_path, '4_runs/plots/vae.png'), show_shapes=True)
 
@@ -254,7 +258,7 @@ if __name__ == '__main__':
         os.path.join(args.project_path, '2_data/05_images_masked/dataset1/9810286471-A_BANDS-S2-L1C.tiff')
     ]
 
-    if platform.system() == 'Darwin':
+    if op_sys == 'Darwin':
         example_images = [
             os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
             os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
