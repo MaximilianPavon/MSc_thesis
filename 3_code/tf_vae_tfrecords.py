@@ -54,8 +54,9 @@ if __name__ == '__main__':
 
         args.weights = os.path.join(args.project_path, args.weights)
 
-    print(f'available GPUs: \n {get_available_gpus()}')
-    gpu_device_ID = get_device_id()
+    print(f'available GPUs:) ')
+    gpu_pci_bus_id = get_available_gpus()
+    gpu_device_ID = get_device_id(gpu_pci_bus_id)
 
     # Parameters
     params = {

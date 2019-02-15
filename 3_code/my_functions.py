@@ -1,4 +1,5 @@
 import sys, os, io, platform
+from subprocess import Popen, PIPE
 
 import pandas as pd
 import numpy as np
@@ -13,9 +14,118 @@ from skimage import exposure
 import GPUtil
 
 
+def get_OS():
+    return platform.system()
+
+
 def get_available_gpus():
+    if get_OS() == 'Darwin':
+        return ''
+
+    stdout = sys.stdout
+    sys.stdout = io.StringIO()
+
     local_device_protos = device_lib.list_local_devices()
-    return [x.name for x in local_device_protos if x.device_type == 'GPU']
+    print(local_device_protos)  # printing is necessary to pass information to stdout
+
+    # get output and restore sys.stdout
+    tf_gpu_info = sys.stdout.getvalue()
+    sys.stdout = stdout
+
+    tf_gpu_info = tf_gpu_info.split(os.linesep)[-3]
+    # tf_gpu_info is: 'physical_device_desc: "device: 0, name: Tesla V100-PCIE-32GB, pci bus id: 0000:18:00.0, compute capability: 7.0"'
+
+    tf_gpu_info = tf_gpu_info.split('pci bus id:')[-1]
+    # tf_gpu_info is: ' 0000:18:00.0, compute capability: 7.0"'
+
+    tf_gpu_pci_bus_id = tf_gpu_info.split(', compute capability')[0].strip()
+    print(f'pci bus id: {tf_gpu_pci_bus_id}')
+
+    print([x.name for x in local_device_protos if x.device_type == 'GPU'])
+
+    return tf_gpu_pci_bus_id
+
+
+def _get_serials_pci_bus_ids():
+    p = Popen(["nvidia-smi", "--query-gpu=index,uuid,pci.bus_id,serial", "--format=csv,noheader"], stdout=PIPE)
+
+    stdout, stderror = p.communicate()
+
+    output = stdout.decode('UTF-8')
+    # output looks like this:
+    # index, uuid, pci.bus_id, serial
+    # 0, GPU-f186d30d-edbf-6153-0d12-0c9e968f25ea, 00000000:18:00.0, 0423718059721
+    # 1, GPU-0964a27f-d918-b7b5-7cdb-f557ab54d74e, 00000000:3B:00.0, 0423718082092
+    # 2, GPU-7eb57620-43df-977b-0f8d-2b90efa4f2f1, 00000000:86:00.0, 0423718059629
+    # 3, GPU-5f65db4d-3355-24bf-0888-ec896a6dbceb, 00000000:AF:00.0, 0423718081271
+
+    lines = output.split(os.linesep)
+    # print(lines)
+    numDevices = len(lines) - 1
+
+    pci_bus_ids, serials = [], []
+
+    for g in range(numDevices):
+        line = lines[g]
+        vals = line.split(', ')
+        for i in range(len(vals)):
+            if (i == 2):
+                pci_bus_id = vals[i]
+            elif (i == 3):
+                serial = vals[i]
+        pci_bus_ids.append(pci_bus_id)
+        serials.append(serial)
+
+    return serials, pci_bus_ids
+
+
+def _get_gpu_util_str():
+    # redirect sys.stdout to a buffer
+    stdout = sys.stdout
+    sys.stdout = io.StringIO()
+
+    GPUtil.showUtilization()
+
+    # get output and restore sys.stdout
+    gpu_util_str = sys.stdout.getvalue()
+    sys.stdout = stdout
+    # returns something like this" ['| ID | GPU | MEM |', '------------------', '|  0 |  0% |  2% |', '']
+    #                                   header          , header separation   , values of GPU(s)
+    return gpu_util_str.split('\n')
+
+
+def get_device_id(gpu_pci_bus_id):
+    if get_OS() == 'Darwin':
+        return 0
+
+    serials, pci_bus_ids = _get_serials_pci_bus_ids()
+    for i, pci in enumerate(pci_bus_ids):
+        if gpu_pci_bus_id in pci:
+            id = i
+            break
+
+    return id
+
+
+def get_device_util(deviceID):
+    if platform.system() == 'Darwin':
+        #  check if run on macOS with no available GPU and exit the function returning constant 0 utilisation
+        #  as calling GPUtil.showUtilization() with no availble GPU will throw an error
+        return 0
+
+    # offset by two lines due to header and header separation
+    device_str = _get_gpu_util_str()[deviceID + 2]
+    # device_str is something like: '|  0 |  0% |  2% |'
+
+    _, id_nr, gpu_util, mem_util, _ = device_str.split('|')
+    # gpu_util is something like: '  0% '
+
+    gpu_util = gpu_util.strip()
+    # gpu_util is something like: '0%'
+
+    gpu_util = int(gpu_util.split('%')[0])
+    # gpu_util is something like: 0
+    return gpu_util
 
 
 def preprocess_df(path_to_csv, path_to_data, colour_band, file_extension):
@@ -325,47 +435,3 @@ def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
     dataset = dataset.repeat()
 
     return dataset, steps_per_epoch
-
-
-def get_gpu_util_str():
-    # redirect sys.stdout to a buffer
-    stdout = sys.stdout
-    sys.stdout = io.StringIO()
-
-    GPUtil.showUtilization()
-
-    # get output and restore sys.stdout
-    gpu_util_str = sys.stdout.getvalue()
-    sys.stdout = stdout
-    # returns something like this" ['| ID | GPU | MEM |', '------------------', '|  0 |  0% |  2% |', '']
-    #                                   header          , header separation   , values of GPU(s)
-    return gpu_util_str.split('\n')
-
-
-def get_device_util(deviceID):
-    if platform.system() == 'Darwin':
-        #  check if run on macOS with no available GPU and exit the function returning constant 0 utilisation
-        #  as calling GPUtil.showUtilization() with no availble GPU will throw an error
-        return 0
-
-    # offset by two lines due to header and header separation
-    device_str = get_gpu_util_str()[deviceID + 2]
-    # device_str is something like: '|  0 |  0% |  2% |'
-
-    _, id_nr, gpu_util, mem_util, _ = device_str.split('|')
-    # gpu_util is something like: '  0% '
-
-    gpu_util = gpu_util.strip()
-    # gpu_util is something like: '0%'
-
-    gpu_util = int(gpu_util.split('%')[0])
-    # gpu_util is something like: 0
-    return gpu_util
-
-
-def get_device_id():
-    return GPUtil.getFirstAvailable()[0] if not platform.system() == 'Darwin' else 0
-
-def get_OS():
-    return platform.system()
-
