@@ -1,13 +1,16 @@
+import sys, os, io, platform
+
 import pandas as pd
 import numpy as np
-import os
 import tensorflow as tf
 from tensorflow.python.client import device_lib
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, TextArea
-from skimage import io, exposure
+from skimage import io as ski_io
+from skimage import exposure
+import GPUtil
 
 
 def get_available_gpus():
@@ -178,7 +181,7 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
     ax.set_ylabel("z[1]")
 
     for file, info in zip(example_images, ex_im_informations):
-        im = io.imread(file)
+        im = ski_io.imread(file)
 
         z_mean, _, _ = encoder.predict(
             np.reshape(im, (1, img_size, img_size, n_channels))
@@ -322,3 +325,47 @@ def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
     dataset = dataset.repeat()
 
     return dataset, steps_per_epoch
+
+
+def get_gpu_util_str():
+    # redirect sys.stdout to a buffer
+    stdout = sys.stdout
+    sys.stdout = io.StringIO()
+
+    GPUtil.showUtilization()
+
+    # get output and restore sys.stdout
+    gpu_util_str = sys.stdout.getvalue()
+    sys.stdout = stdout
+    # returns something like this" ['| ID | GPU | MEM |', '------------------', '|  0 |  0% |  2% |', '']
+    #                                   header          , header separation   , values of GPU(s)
+    return gpu_util_str.split('\n')
+
+
+def get_device_util(deviceID):
+    if platform.system() == 'Darwin':
+        #  check if run on macOS with no available GPU and exit the function returning constant 0 utilisation
+        #  as calling GPUtil.showUtilization() with no availble GPU will throw an error
+        return 0
+
+    # offset by two lines due to header and header separation
+    device_str = get_gpu_util_str()[deviceID + 2]
+    # device_str is something like: '|  0 |  0% |  2% |'
+
+    _, id_nr, gpu_util, mem_util, _ = device_str.split('|')
+    # gpu_util is something like: '  0% '
+
+    gpu_util = gpu_util.strip()
+    # gpu_util is something like: '0%'
+
+    gpu_util = int(gpu_util.split('%')[0])
+    # gpu_util is something like: 0
+    return gpu_util
+
+
+def get_device_id():
+    return GPUtil.getFirstAvailable()[0] if not platform.system() == 'Darwin' else 0
+
+def get_OS():
+    return platform.system()
+
