@@ -79,13 +79,13 @@ if __name__ == '__main__':
         'latent_dim': 2,
         'epochs': 70
     }
-
+    n_parallel_readers = 4
     ds_train, steps_per_epoch_train = create_dataset(params['path_to_data'], 'train', params['batch_size'],
-                                                     params['batch_size'], 2)
+                                                     params['batch_size'], n_parallel_readers )
     ds_val, steps_per_epoch_val = create_dataset(params['path_to_data'], 'val', params['batch_size'],
-                                                 params['batch_size'], 2)
+                                                 params['batch_size'], n_parallel_readers)
     ds_test, steps_per_epoch_test = create_dataset(params['path_to_data'], 'test', params['batch_size'],
-                                                   params['batch_size'], 2)
+                                                   params['batch_size'], n_parallel_readers)
 
     # network parameters
     input_shape = (params['dim'][0], params['dim'][1], params['n_channels'])
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         return vae_loss
 
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
-    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'], sample_weight_mode=None)
+    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'])
     vae.summary()
     tf.keras.utils.plot_model(vae, to_file=os.path.join(args.project_path, '4_runs/plots/vae.png'), show_shapes=True)
 
@@ -226,10 +226,10 @@ if __name__ == '__main__':
         print('start the training')
         vae.fit(
             ds_train,
-            steps_per_epoch=steps_per_epoch_train if not args.debug else 1,
+            steps_per_epoch=steps_per_epoch_train if not args.debug else 3,
             validation_data=ds_val,
-            validation_steps=steps_per_epoch_val if not args.debug else 1,
-            epochs=epochs if not args.debug else 1,
+            validation_steps=steps_per_epoch_val if not args.debug else 3,
+            epochs=epochs if not args.debug else 3,
             callbacks=callbacks_list,
         )
         print('training done')

@@ -422,7 +422,7 @@ def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
     # dataset = dataset.shuffle(n_files)
 
     # Maps the parser on every filepath in the array. Set the number of parallel loaders here
-    dataset = dataset.map(_parse_function, num_parallel_calls=os.cpu_count())
+    dataset = dataset.map(_parse_function, num_parallel_calls=os.cpu_count() - 1)
     dataset = dataset.batch(batch_size=batch_size)
 
     # replaces .map and .batch -- but DEPRECATED??
