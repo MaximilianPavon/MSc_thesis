@@ -109,9 +109,9 @@ def get_device_id(gpu_pci_bus_id):
 
 def get_device_util(deviceID):
     if platform.system() == 'Darwin':
-        #  check if run on macOS with no available GPU and exit the function returning constant 0 utilisation
+        #  check if run on macOS with no available GPU and exit the function returning constant -100 utilisation
         #  as calling GPUtil.showUtilization() with no availble GPU will throw an error
-        return 0
+        return -100
 
     # offset by two lines due to header and header separation
     device_str = _get_gpu_util_str()[deviceID + 2]

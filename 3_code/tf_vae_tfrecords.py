@@ -174,11 +174,8 @@ if __name__ == '__main__':
         vae_loss = tf.keras.backend.mean(reconstruction_loss + kl_loss)
         return vae_loss
 
-    def gpu_util(y_true, y_pred):
-        return tf.convert_to_tensor(get_device_util(gpu_device_ID))
-
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
-    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy', gpu_util], sample_weight_mode=None)
+    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'], sample_weight_mode=None)
     vae.summary()
     tf.keras.utils.plot_model(vae, to_file=os.path.join(args.project_path, '4_runs/plots/vae.png'), show_shapes=True)
 
