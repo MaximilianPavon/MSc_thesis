@@ -2,14 +2,14 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-12:00:00
+#SBATCH --time=0-04:00:00
 #SBATCH --mem-per-cpu 10G
-#SBATCH --cpus-per-task=21
+#SBATCH --cpus-per-task=24
 
 # TODO: set num of cpu properly
 
 #SBATCH --gres=gpu:1
-#SBATCH --constraint='kepler|pascal|volta'
+#SBATCH --constraint='pascal|volta'
 
 # set -x # print all output to log file
 
