@@ -12,10 +12,10 @@ dependencies:
   - pillow
   - pydot
   - scikit-image
-  - keras
   - tensorflow
   - geopandas
   - rasterio
   - pip:
     - edward
     - sentinelhub
+    - gputil
