@@ -1,6 +1,11 @@
-from threading import Thread
 import time
+from threading import Thread
 from my_functions import get_device_util
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import os, glob
+import imageio
+from skimage import exposure
 
 
 class Monitor(Thread):
@@ -19,3 +24,63 @@ class Monitor(Thread):
 
     def stop(self):
         self.stopped = True
+
+
+class MyCallback(tf.keras.callbacks.Callback):
+    def __init__(self, encoder, decoder, log_dir, num_examples_to_generate=16, latent_dim=2, log_freq=10):
+        super(MyCallback, self).__init__()
+        self.encoder = encoder
+        self.decoder = decoder
+        self.log_dir = log_dir
+        self.num_examples_to_generate = num_examples_to_generate
+        self.latent_dim = latent_dim
+        self.log_freq = log_freq
+        os.makedirs(self.log_dir, exist_ok=True)
+
+        # keeping the random vector constant for generation (prediction) so
+        # it will be easier to see the improvement.
+        self.random_vector_for_generation = tf.random_normal(shape=[self.num_examples_to_generate, self.latent_dim])
+
+    def on_epoch_end(self, epoch, logs=None):
+
+        if epoch % self.log_freq == 0:
+            predictions = self.decoder.predict(self.random_vector_for_generation, steps=1)
+            fig = plt.figure(figsize=(4, 4))
+
+            for i in range(predictions.shape[0]):
+                plt.subplot(4, 4, i + 1)
+                im = predictions[i][ :, :, [3, 2, 1]]
+                im = exposure.rescale_intensity(im)
+                plt.imshow(im)
+                plt.axis('off')
+
+            # tight_layout minimizes the overlap between 2 sub-plots
+            plt.savefig(
+                os.path.join(self.log_dir, 'image_at_epoch_{:04d}.png'.format(epoch)),
+                dpi=300, bbox_inches='tight')
+            plt.show()
+            plt.clf()
+            pass
+        else:
+            pass
+
+    def on_train_end(self, logs=None):
+
+        with imageio.get_writer(os.path.join(self.log_dir, 'cvae.gif'), mode='I') as writer:
+            filenames = glob.glob(os.path.join(self.log_dir, 'image*.png'))
+            filenames = sorted(filenames)
+            last = -1
+            for i, filename in enumerate(filenames):
+                frame = 2 * (i ** 0.5)
+                if round(frame) > round(last):
+                    last = frame
+                else:
+                    continue
+                image = imageio.imread(filename)
+                writer.append_data(image)
+            image = imageio.imread(filename)
+            writer.append_data(image)
+
+        # os.system('rm image_at_epoch_0*')
+
+        pass

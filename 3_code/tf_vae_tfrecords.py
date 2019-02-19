@@ -1,5 +1,5 @@
 from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset, get_device_util, get_device_id, get_OS
-
+from my_classes import MyCallback
 import tensorflow as tf
 import datetime
 import argparse
@@ -183,7 +183,16 @@ if __name__ == '__main__':
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     config_string = str(params['n_Conv']) + 'n_Conv_' + datetime_string
 
-    # add Keras callbacks for logging and for saving model checkpoints
+    # add callbacks for:
+    # - creating saving decoded image after log_freq epochs
+    # - TensorBoard logger
+    # - logging and for saving model checkpoints
+
+    mycallback = MyCallback(
+        encoder, decoder,
+        log_dir=os.path.join(args.project_path, '4_runs/plots/gif_' + config_string),
+        num_examples_to_generate=16, latent_dim=2, log_freq=1
+    )
 
     tbCallBack = tf.keras.callbacks.TensorBoard(
         log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + config_string),
@@ -206,7 +215,7 @@ if __name__ == '__main__':
         period=1,
     )
 
-    callbacks_list = [model_checkpoint, tbCallBack]
+    callbacks_list = [model_checkpoint, tbCallBack, mycallback]
 
     if args.weights:
         print(f'loading weights from: {args.weights}')
