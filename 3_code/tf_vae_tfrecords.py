@@ -1,5 +1,5 @@
 from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset, get_device_util, get_device_id, get_OS
-from my_classes import MyCallback
+from my_classes import MyCallbackDecoder, MyCallbackCompOrigDecoded
 import tensorflow as tf
 import datetime
 import argparse
@@ -188,9 +188,13 @@ if __name__ == '__main__':
     # - TensorBoard logger
     # - logging and for saving model checkpoints
 
-    mycallback = MyCallback(
+    mycb_comparison = MyCallbackCompOrigDecoded(
+        log_dir=os.path.join(args.project_path, '4_runs/plots/comparison_' + config_string),
+        dataset=ds_test, num_examples=10,  log_freq=1)
+
+    mycb_decoder = MyCallbackDecoder(
         encoder, decoder,
-        log_dir=os.path.join(args.project_path, '4_runs/plots/gif_' + config_string),
+        log_dir=os.path.join(args.project_path, '4_runs/plots/decoder_' + config_string),
         num_examples_to_generate=16, latent_dim=2, log_freq=1
     )
 
@@ -215,7 +219,7 @@ if __name__ == '__main__':
         period=1,
     )
 
-    callbacks_list = [model_checkpoint, tbCallBack, mycallback]
+    callbacks_list = [mycb_comparison, mycb_decoder, model_checkpoint, tbCallBack]
 
     if args.weights:
         print(f'loading weights from: {args.weights}')
