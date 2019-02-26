@@ -76,7 +76,7 @@ if __name__ == '__main__':
         'n_Conv': 6,
         'kernel_size': 3,
         'filters': 20,
-        'latent_dim': 2,
+        'latent_dim': 4,
         'epochs': 70
     }
     n_parallel_readers = 4
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     mycb_decoder = MyCallbackDecoder(
         encoder, decoder,
         log_dir=os.path.join(args.project_path, '4_runs/plots/decoder_' + config_string),
-        num_examples_to_generate=16, latent_dim=2, log_freq=1
+        num_examples_to_generate=16, log_freq=1
     )
 
     tbCallBack = tf.keras.callbacks.TensorBoard(

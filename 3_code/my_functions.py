@@ -248,6 +248,7 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
     """
 
     encoder, decoder = model
+    latent_dim = encoder.output[0].shape.dims[1].value
 
     # models need to be compiled before they can be used for .predict()
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
@@ -297,7 +298,7 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
             np.reshape(im, (1, img_size, img_size, n_channels))
             # reshape necessary because the encoder expects a 4D array with batch x img_size x img_size x n_channels
         )
-        z_mean = z_mean[0]
+        z_mean = z_mean[0][[0, 1]]  # select first batch and first 2 dimensions of the latent vector
 
         ax.scatter(z_mean[0], z_mean[1], s=10)
 
@@ -325,10 +326,13 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
                             arrowprops=dict(arrowstyle="->"))
 
         ax.add_artist(ab)
-
-    plt.title('Satellite images projected into the latent space')
+    if latent_dim == 2:
+        plt.title('Satellite images projected into the latent space')
+    elif latent_dim > 2:
+        plt.title('Satellite images projected into the latent space (only first two dimensions of latent space are '
+                  'shown)')
     plt.savefig(filename, dpi=300, bbox_inches='tight')
-    plt.show()
+    # plt.show()
     plt.clf()
 
     n = 30
@@ -342,7 +346,10 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
 
     for i, yi in enumerate(grid_y):
         for j, xi in enumerate(grid_x):
-            z_sample = np.array([[xi, yi]])
+            z_sample = [xi, yi]
+            while len(z_sample) < latent_dim:
+                z_sample.append(0)
+            z_sample = np.array([z_sample])
             x_decoded = decoder.predict(z_sample)
             im = x_decoded[0].reshape(img_size, img_size, n_channels)
             im = im[:, :, [3, 2, 1]]
@@ -365,8 +372,12 @@ def plot_latent_space(model, dataset, example_images, ex_im_informations, path='
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
     plt.imshow(figure)
+    if latent_dim == 2:
+        plt.title('Decoded latent space')
+    elif latent_dim > 2:
+        plt.title('Decoded latent space (only first two dimensions of latent space are shown)')
     plt.savefig(filename, dpi=300, bbox_inches='tight')
-    plt.show()
+    # plt.show()
     plt.clf()
 
 
