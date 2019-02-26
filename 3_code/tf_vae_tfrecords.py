@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)."
                                                 "Path until parent directory: e.g \'4_runs/logging/weights/")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
+    parser.add_argument('-z', "--latent_dim", type=int , help="Specify the dimensionality of latent space")
     parser.add_argument("--debug", action='store_true', help="Run in debug mode - reduces epochs and steps_per_epoch")
     args = parser.parse_args()
 
@@ -77,7 +78,7 @@ if __name__ == '__main__':
         'n_Conv': 6,
         'kernel_size': 3,
         'filters': 20,
-        'latent_dim': 4,
+        'latent_dim': args.latent_dim if args.latent_dim else 2,
         'epochs': 70
     }
     n_parallel_readers = 4
