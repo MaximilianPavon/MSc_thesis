@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     # folder extension for bookkeeping
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    config_string = str(params['n_Conv']) + 'n_Conv_' + datetime_string
+    config_string = str(params['latent_dim']) + 'z_' + str(params['n_Conv']) + 'Layers_' + datetime_string
 
     # add callbacks for:
     # - creating saving decoded image after log_freq epochs
