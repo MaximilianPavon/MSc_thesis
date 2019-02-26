@@ -15,17 +15,18 @@ if op_sys == 'Darwin':
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)")
-    parser.add_argument("-m", "--model", help="Load compiled models (.hdf5 file) saved by model.save(filepath). Path "
-                                              "until parent directory: e.g \'4_runs/logging/models/")
-    parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
-    parser.add_argument("--debug", action='store_true', help="Run in debug mode - reduces epochs and steps_per_epoch")
-    parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
-    parser.add_argument("-d", "--data_path",
-                        help="Specify path, where the data is located. E.g. /tmp/$SLURM_JOB_ID/05_images_masked/ ")
     req_grp = parser.add_argument_group(title='required arguments')
     req_grp.add_argument("-c", "--computer", help="Specify computer: use \'triton\', \'mac\' or \'workstation\'.",
                          required=True)
+    parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
+    parser.add_argument("-d", "--data_path",
+                        help="Specify path, where the data is located. E.g. /tmp/$SLURM_JOB_ID/05_images_masked/ ")
+    parser.add_argument("-m", "--model", help="Load compiled models (.hdf5 file) saved by model.save(filepath). Path "
+                                              "until parent directory: e.g \'4_runs/logging/models/")
+    parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)."
+                                                "Path until parent directory: e.g \'4_runs/logging/weights/")
+    parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
+    parser.add_argument("--debug", action='store_true', help="Run in debug mode - reduces epochs and steps_per_epoch")
     args = parser.parse_args()
 
     if not args.project_path:
