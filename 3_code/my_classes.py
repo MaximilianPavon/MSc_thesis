@@ -57,7 +57,7 @@ class MyCallbackDecoder(tf.keras.callbacks.Callback):
             # tight_layout minimizes the overlap between 2 sub-plots
             plt.savefig(
                 os.path.join(self.log_dir, 'image_at_epoch_{:04d}.png'.format(epoch)),
-                dpi=300, bbox_inches='tight')
+                dpi=100, bbox_inches='tight')
             # plt.show()
             plt.clf()
             pass
@@ -133,7 +133,7 @@ class MyCallbackCompOrigDecoded(tf.keras.callbacks.Callback):
             # tight_layout minimizes the overlap between 2 sub-plots
             plt.savefig(
                 os.path.join(self.log_dir, 'image_at_epoch_{:04d}.png'.format(epoch)),
-                dpi=300, bbox_inches='tight')
+                dpi=100, bbox_inches='tight')
             # plt.show()
             plt.clf()
             pass
