@@ -7,6 +7,7 @@
 #SBATCH --cpus-per-task=24
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
+#SBATCH --array=1-10
 
 # set -x # print all output to log file
 
@@ -25,4 +26,8 @@ cp 2_data/05_images_masked/*.tfrecord /tmp/$SLURM_JOB_ID    # copy tfrecords fil
 cp 2_data/05_images_masked/*.txt /tmp/$SLURM_JOB_ID         # copy other necessary files to temporary directory
                                                             # run python script with temporary directory as input for the images
 
-python 3_code/tf_vae_tfrecords.py -c triton --data_path /tmp/$SLURM_JOB_ID/
+# define the dimensionality of latent space and pass it as argument to python script
+z=$((2**$SLURM_ARRAY_TASK_ID))
+echo "latent dim: $z"
+
+python 3_code/tf_vae_tfrecords.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z $z
