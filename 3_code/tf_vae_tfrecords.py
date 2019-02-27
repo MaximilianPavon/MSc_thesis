@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     # generate latent vector Q(z|X)
     x = tf.keras.layers.Flatten()(x)
-    x = tf.keras.layers.Dense(16, activation='relu')(x)
+    # x = tf.keras.layers.Dense(16, activation='relu')(x)
     z_mean = tf.keras.layers.Dense(latent_dim, name='z_mean')(x)
     z_log_var = tf.keras.layers.Dense(latent_dim, name='z_log_var')(x)
 
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     vae = tf.keras.models.Model(inputs, outputs, name='vae')
 
 
-    def my_vae_loss(_inputs, _outputs):
+    def vae_loss(_inputs, _outputs):
         # VAE loss = mse_loss or xent_loss + kl_loss
         if args.mse:
             reconstruction_loss = tf.keras.losses.mse(
@@ -184,8 +184,14 @@ if __name__ == '__main__':
         vae_loss = tf.keras.backend.mean(reconstruction_loss + kl_loss)
         return vae_loss
 
+    def kl_loss(y_true, y_pred):
+        kl_loss = 1 + z_log_var - tf.keras.backend.square(z_mean) - tf.keras.backend.exp(z_log_var)
+        kl_loss = tf.keras.backend.sum(kl_loss, axis=-1)
+        kl_loss *= -0.5
+        return kl_loss
+
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
-    vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'])
+    vae.compile(optimizer=rmsprop, loss=vae_loss, metrics=[kl_loss])
     vae.summary()
     tf.keras.utils.plot_model(
         vae, to_file=os.path.join(args.project_path, '4_runs/plots/', config_string, 'vae.png'),
@@ -238,7 +244,7 @@ if __name__ == '__main__':
     elif args.model:
         print(f'loading models from: {args.model}')
         vae = tf.keras.models.load_model(os.path.join(args.model, 'vae.hdf5'),
-                                         custom_objects={'my_vae_loss': my_vae_loss})
+                                         custom_objects={'vae_loss': vae_loss})
         encoder = tf.keras.models.load_model(os.path.join(args.model, 'encoder.hdf5'))
         decoder = tf.keras.models.load_model(os.path.join(args.model, 'decoder.hdf5'))
         print('models loaded')
