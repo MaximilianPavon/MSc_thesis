@@ -81,6 +81,7 @@ if __name__ == '__main__':
         'latent_dim': args.latent_dim if args.latent_dim else 2,
         'epochs': 70
     }
+    batch_normalization = True
     n_parallel_readers = 4
     ds_train, steps_per_epoch_train = create_dataset(params['path_to_data'], 'train', params['batch_size'],
                                                      params['batch_size'], n_parallel_readers )
@@ -98,8 +99,7 @@ if __name__ == '__main__':
 
     # folder extension for bookkeeping
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    config_string = str(params['latent_dim']) + 'z_' + str(params['n_Conv']) + 'Layers_' + datetime_string
-
+    config_string = str(latent_dim) + 'z_' + str(n_Conv) + 'Layers_' + str(int(batch_normalization)) + 'BN_' + datetime_string
     os.makedirs(os.path.join(args.project_path, '4_runs/plots/', config_string), exist_ok=True)
 
     print('create graph / model')
@@ -114,7 +114,8 @@ if __name__ == '__main__':
                                    activation='relu',
                                    strides=2,
                                    padding='same')(x)
-        # x = tf.keras.layers.BatchNormalization()(x)
+        if batch_normalization:
+            x = tf.keras.layers.BatchNormalization()(x)
 
     # shape info needed to build decoder model
     shape = tf.keras.backend.int_shape(x)
@@ -148,9 +149,10 @@ if __name__ == '__main__':
                                             activation='relu',
                                             strides=2,
                                             padding='same')(x)
-        # x = tf.keras.layers.BatchNormalization()(x)
+        if batch_normalization:
+            x = tf.keras.layers.BatchNormalization()(x)
 
-    outputs = tf.keras.layers.Conv2DTranspose(filters=params['n_channels'],
+    outputs = tf.keras.layers.Conv2DTranspose(filters=n_channels,
                                               kernel_size=kernel_size,
                                               activation='sigmoid',
                                               padding='same',
