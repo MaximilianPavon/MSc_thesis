@@ -1,4 +1,4 @@
-from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset, get_device_util, get_device_id, get_OS
+from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset, get_device_id, get_OS
 from my_classes import MyCallbackDecoder, MyCallbackCompOrigDecoded
 import tensorflow as tf
 import datetime
@@ -11,7 +11,6 @@ if op_sys == 'Darwin':
     # fix for macOS issue regarding library import error:
     # OMP: Error #15: Initializing libiomp5.dylib, but found libiomp5.dylib already initialized.
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -26,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)."
                                                 "Path until parent directory: e.g \'4_runs/logging/weights/")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
-    parser.add_argument('-z', "--latent_dim", type=int , help="Specify the dimensionality of latent space")
+    parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
     parser.add_argument("--debug", action='store_true', help="Run in debug mode - reduces epochs and steps_per_epoch")
     args = parser.parse_args()
 
@@ -61,41 +60,25 @@ if __name__ == '__main__':
     gpu_device_ID = get_device_id(gpu_pci_bus_id)
 
     # Parameters
-    params = {
-        'path_to_csv': os.path.join(args.project_path,
-                                    '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_masked.csv'),
-        'train_p': 0.8,
-        'val_p': 0.1,
-        'path_to_data': args.data_path if args.data_path else os.path.join(args.project_path,
-                                                                           '2_data/05_images_masked/'),
-        'has_cb_and_ext': True,
-        'colour_band': 'BANDS-S2-L1C',
-        'file_extension': '.tiff',
-        'dim': (512, 512),
-        'batch_size': 16,
-        'n_channels': 13,
-        'shuffle': True,
-        'n_Conv': 6,
-        'kernel_size': 3,
-        'filters': 20,
-        'latent_dim': args.latent_dim if args.latent_dim else 2,
-        'epochs': 70
-    }
+    path_to_csv = os.path.join(
+        args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_masked.csv')
+    path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/05_images_masked/')
+    im_dim = (512, 512)
+    batch_size = 16
+    n_channels = 13
+    input_shape = (im_dim[0], im_dim[1], n_channels)
+    n_Conv = 6
+    kernel_size = 3
+    filters = 20
+    latent_dim = args.latent_dim if args.latent_dim else 2
+    epochs = 100
     batch_normalization = True
     n_parallel_readers = 4
-    ds_train, steps_per_epoch_train = create_dataset(params['path_to_data'], 'train', params['batch_size'],
-                                                     params['batch_size'], n_parallel_readers )
-    ds_val, steps_per_epoch_val = create_dataset(params['path_to_data'], 'val', params['batch_size'],
-                                                 params['batch_size'], n_parallel_readers)
-    ds_test, steps_per_epoch_test = create_dataset(params['path_to_data'], 'test', params['batch_size'],
-                                                   params['batch_size'], n_parallel_readers)
 
-    # network parameters
-    input_shape = (params['dim'][0], params['dim'][1], params['n_channels'])
-    kernel_size = params['kernel_size']
-    filters = params['filters']
-    latent_dim = params['latent_dim']
-    epochs = params['epochs']
+    # create Dataset objects
+    ds_train, steps_per_epoch_train = create_dataset(path_to_data, 'train', batch_size, batch_size, n_parallel_readers)
+    ds_val, steps_per_epoch_val = create_dataset(path_to_data, 'val', batch_size, batch_size, n_parallel_readers)
+    ds_test, steps_per_epoch_test = create_dataset(path_to_data, 'test', batch_size, batch_size, n_parallel_readers)
 
     # folder extension for bookkeeping
     datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -107,7 +90,7 @@ if __name__ == '__main__':
     # build encoder model
     inputs = tf.keras.layers.Input(shape=input_shape, name='encoder_input')
     x = inputs
-    for i in range(params['n_Conv']):
+    for i in range(n_Conv):
         # filters *= 2
         x = tf.keras.layers.Conv2D(filters=filters,
                                    kernel_size=kernel_size,
@@ -142,7 +125,7 @@ if __name__ == '__main__':
     x = tf.keras.layers.Dense(shape[1] * shape[2] * shape[3], activation='relu')(latent_inputs)
     x = tf.keras.layers.Reshape((shape[1], shape[2], shape[3]))(x)
 
-    for i in range(params['n_Conv']):
+    for i in range(n_Conv):
         # filters //= 2
         x = tf.keras.layers.Conv2DTranspose(filters=filters,
                                             kernel_size=kernel_size,
@@ -179,18 +162,20 @@ if __name__ == '__main__':
             reconstruction_loss = tf.keras.losses.binary_crossentropy(
                 tf.keras.backend.flatten(_inputs), tf.keras.backend.flatten(_outputs))
 
-        reconstruction_loss *= params['dim'][0] * params['dim'][1]
+        reconstruction_loss *= im_dim[0] * im_dim[1]
         kl_loss = 1 + z_log_var - tf.keras.backend.square(z_mean) - tf.keras.backend.exp(z_log_var)
         kl_loss = tf.keras.backend.sum(kl_loss, axis=-1)
         kl_loss *= -0.5
         vae_loss = tf.keras.backend.mean(reconstruction_loss + kl_loss)
         return vae_loss
 
+
     def kl_loss(y_true, y_pred):
         kl_loss = 1 + z_log_var - tf.keras.backend.square(z_mean) - tf.keras.backend.exp(z_log_var)
         kl_loss = tf.keras.backend.sum(kl_loss, axis=-1)
         kl_loss *= -0.5
         return kl_loss
+
 
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
     vae.compile(optimizer=rmsprop, loss=vae_loss, metrics=[kl_loss])
@@ -206,7 +191,7 @@ if __name__ == '__main__':
 
     mycb_comparison = MyCallbackCompOrigDecoded(
         log_dir=os.path.join(args.project_path, '4_runs/plots/', config_string, 'comparison'),
-        dataset=ds_test, num_examples=10,  log_freq=1)
+        dataset=ds_test, num_examples=10, log_freq=1)
 
     mycb_decoder = MyCallbackDecoder(
         encoder, decoder,
@@ -217,7 +202,7 @@ if __name__ == '__main__':
     tbCallBack = tf.keras.callbacks.TensorBoard(
         log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + config_string),
         histogram_freq=0,  # TODO: fix error when setting histogram_freq > 0
-        batch_size=params['batch_size'],
+        batch_size=batch_size,
         write_graph=True,
         write_grads=False,
         write_images=False,
