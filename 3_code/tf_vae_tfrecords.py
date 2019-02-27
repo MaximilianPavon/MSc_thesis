@@ -96,6 +96,12 @@ if __name__ == '__main__':
     latent_dim = params['latent_dim']
     epochs = params['epochs']
 
+    # folder extension for bookkeeping
+    datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    config_string = str(params['latent_dim']) + 'z_' + str(params['n_Conv']) + 'Layers_' + datetime_string
+
+    os.makedirs(os.path.join(args.project_path, '4_runs/plots/', config_string), exist_ok=True)
+
     print('create graph / model')
     # VAE model = encoder + decoder
     # build encoder model
@@ -126,8 +132,9 @@ if __name__ == '__main__':
     # instantiate encoder model
     encoder = tf.keras.models.Model(inputs, [z_mean, z_log_var, z], name='encoder')
     encoder.summary()
-    tf.keras.utils.plot_model(encoder, to_file=os.path.join(args.project_path, '4_runs/plots/vae_encoder.png'),
-                              show_shapes=True)
+    tf.keras.utils.plot_model(
+        encoder, to_file=os.path.join(args.project_path, '4_runs/plots/', config_string, 'vae_encoder.png'),
+        show_shapes=True)
 
     # build decoder model
     latent_inputs = tf.keras.layers.Input(shape=(latent_dim,), name='z_sampling')
@@ -152,8 +159,9 @@ if __name__ == '__main__':
     # instantiate decoder model
     decoder = tf.keras.models.Model(latent_inputs, outputs, name='decoder')
     decoder.summary()
-    tf.keras.utils.plot_model(decoder, to_file=os.path.join(args.project_path, '4_runs/plots/vae_decoder.png'),
-                              show_shapes=True)
+    tf.keras.utils.plot_model(
+        decoder, to_file=os.path.join(args.project_path, '4_runs/plots/', config_string, 'vae_decoder.png'),
+        show_shapes=True)
 
     # instantiate VAE model
     outputs = decoder(encoder(inputs)[2])
@@ -179,11 +187,9 @@ if __name__ == '__main__':
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
     vae.compile(optimizer=rmsprop, loss=my_vae_loss, metrics=['accuracy'])
     vae.summary()
-    tf.keras.utils.plot_model(vae, to_file=os.path.join(args.project_path, '4_runs/plots/vae.png'), show_shapes=True)
-
-    # folder extension for bookkeeping
-    datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    config_string = str(params['latent_dim']) + 'z_' + str(params['n_Conv']) + 'Layers_' + datetime_string
+    tf.keras.utils.plot_model(
+        vae, to_file=os.path.join(args.project_path, '4_runs/plots/', config_string, 'vae.png'),
+        show_shapes=True)
 
     # add callbacks for:
     # - creating saving decoded image after log_freq epochs
@@ -191,12 +197,12 @@ if __name__ == '__main__':
     # - logging and for saving model checkpoints
 
     mycb_comparison = MyCallbackCompOrigDecoded(
-        log_dir=os.path.join(args.project_path, '4_runs/plots/comparison_' + config_string),
+        log_dir=os.path.join(args.project_path, '4_runs/plots/', config_string, 'comparison'),
         dataset=ds_test, num_examples=10,  log_freq=1)
 
     mycb_decoder = MyCallbackDecoder(
         encoder, decoder,
-        log_dir=os.path.join(args.project_path, '4_runs/plots/decoder_' + config_string),
+        log_dir=os.path.join(args.project_path, '4_runs/plots/', config_string, 'decoder'),
         num_examples_to_generate=16, log_freq=1
     )
 
@@ -289,5 +295,5 @@ if __name__ == '__main__':
                       dataset=ds_test,
                       example_images=example_images,
                       ex_im_informations=ex_im_informations,
-                      path=os.path.join(args.project_path, '4_runs/plots/latent_' + config_string)
+                      path=os.path.join(args.project_path, '4_runs/plots/', config_string, 'latent')
                       )
