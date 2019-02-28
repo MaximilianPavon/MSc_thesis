@@ -2,9 +2,9 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-04:00:00
+#SBATCH --time=0-05:00:00
 #SBATCH --mem-per-cpu 10G
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=20
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
 #SBATCH --array=1-10
@@ -30,4 +30,4 @@ cp 2_data/05_images_masked/*.txt /tmp/$SLURM_JOB_ID         # copy other necessa
 z=$((2**$SLURM_ARRAY_TASK_ID))
 echo "latent dim: $z"
 
-python 3_code/tf_vae_tfrecords.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z $z
+srun python 3_code/tf_vae_tfrecords.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z $z
