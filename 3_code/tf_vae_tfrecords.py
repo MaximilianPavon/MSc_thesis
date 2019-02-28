@@ -26,6 +26,8 @@ if __name__ == '__main__':
                                                 "Path until parent directory: e.g \'4_runs/logging/weights/")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
     parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
+    parser.add_argument("--batch_normalization", action='store_true', default=False,
+                        help="Specify if batch normalizations shall be applied. Default False.")
     parser.add_argument("--debug", action='store_true', help="Run in debug mode - reduces epochs and steps_per_epoch")
     args = parser.parse_args()
 
@@ -55,7 +57,7 @@ if __name__ == '__main__':
 
         args.weights = os.path.join(args.project_path, args.weights)
 
-    print(f'available GPUs:) ')
+    print('available GPUs:')
     gpu_pci_bus_id = get_available_gpus()
     gpu_device_ID = get_device_id(gpu_pci_bus_id)
 
@@ -72,7 +74,7 @@ if __name__ == '__main__':
     filters = 20
     latent_dim = args.latent_dim if args.latent_dim else 2
     epochs = 100
-    batch_normalization = True
+    batch_normalization = args.batch_normalization
     n_parallel_readers = 4
 
     # create Dataset objects
