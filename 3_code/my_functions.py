@@ -19,31 +19,33 @@ def get_OS():
 
 
 def get_available_gpus():
-    if get_OS() == 'Darwin':
-        return ''
-
-    stdout = sys.stdout
-    sys.stdout = io.StringIO()
+    # if get_OS() == 'Darwin':
+    #     return ''
+    #
+    # stdout = sys.stdout
+    # sys.stdout = io.StringIO()
+    #
+    # local_device_protos = device_lib.list_local_devices()
+    # print(local_device_protos)  # printing is necessary to pass information to stdout
+    #
+    # # get output and restore sys.stdout
+    # tf_gpu_info = sys.stdout.getvalue()
+    # sys.stdout = stdout
+    #
+    # tf_gpu_info = tf_gpu_info.split(os.linesep)[-3]
+    # # tf_gpu_info is: 'physical_device_desc: "device: 0, name: Tesla V100-PCIE-32GB, pci bus id: 0000:18:00.0, compute capability: 7.0"'
+    #
+    # tf_gpu_info = tf_gpu_info.split('pci bus id:')[-1]
+    # # tf_gpu_info is: ' 0000:18:00.0, compute capability: 7.0"'
+    #
+    # tf_gpu_pci_bus_id = tf_gpu_info.split(', compute capability')[0].strip()
+    # print(f'pci bus id: {tf_gpu_pci_bus_id}')
 
     local_device_protos = device_lib.list_local_devices()
-    print(local_device_protos)  # printing is necessary to pass information to stdout
-
-    # get output and restore sys.stdout
-    tf_gpu_info = sys.stdout.getvalue()
-    sys.stdout = stdout
-
-    tf_gpu_info = tf_gpu_info.split(os.linesep)[-3]
-    # tf_gpu_info is: 'physical_device_desc: "device: 0, name: Tesla V100-PCIE-32GB, pci bus id: 0000:18:00.0, compute capability: 7.0"'
-
-    tf_gpu_info = tf_gpu_info.split('pci bus id:')[-1]
-    # tf_gpu_info is: ' 0000:18:00.0, compute capability: 7.0"'
-
-    tf_gpu_pci_bus_id = tf_gpu_info.split(', compute capability')[0].strip()
-    print(f'pci bus id: {tf_gpu_pci_bus_id}')
-
     print([x.name for x in local_device_protos if x.device_type == 'GPU'])
 
-    return tf_gpu_pci_bus_id
+    return
+    # return tf_gpu_pci_bus_id
 
 
 def _get_serials_pci_bus_ids():

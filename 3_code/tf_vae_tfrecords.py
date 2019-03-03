@@ -25,6 +25,7 @@ if __name__ == '__main__':
     parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)."
                                                 "Path until parent directory: e.g \'4_runs/logging/weights/")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
+    parser.add_argument('-e', "--epochs", type=int, help="Specify the number of training epochs")
     parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
     parser.add_argument("--batch_normalization", action='store_true', default=False,
                         help="Specify if batch normalizations shall be applied. Default False.")
@@ -59,7 +60,7 @@ if __name__ == '__main__':
 
     print('available GPUs:')
     gpu_pci_bus_id = get_available_gpus()
-    gpu_device_ID = get_device_id(gpu_pci_bus_id)
+    # gpu_device_ID = get_device_id(gpu_pci_bus_id)
 
     # Parameters
     path_to_csv = os.path.join(
@@ -73,7 +74,7 @@ if __name__ == '__main__':
     kernel_size = 3
     filters = 20
     latent_dim = args.latent_dim if args.latent_dim else 2
-    epochs = 100
+    epochs = args.epochs if args.epochs else 100
     batch_normalization = args.batch_normalization
     n_parallel_readers = 4
 
