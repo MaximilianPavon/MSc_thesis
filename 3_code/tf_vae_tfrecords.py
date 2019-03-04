@@ -59,7 +59,7 @@ if __name__ == '__main__':
         args.weights = os.path.join(args.project_path, args.weights)
 
     print('available GPUs:')
-    gpu_pci_bus_id = get_available_gpus()
+    get_available_gpus()
     # gpu_device_ID = get_device_id(gpu_pci_bus_id)
 
     # Parameters
@@ -76,6 +76,7 @@ if __name__ == '__main__':
     latent_dim = args.latent_dim if args.latent_dim else 2
     epochs = args.epochs if args.epochs else 100
     batch_normalization = args.batch_normalization
+    loss_fct = 'MSE' if args.mse else 'X-Ent'
     n_parallel_readers = 4
 
     # create Dataset objects
@@ -84,9 +85,9 @@ if __name__ == '__main__':
     ds_test, steps_per_epoch_test = create_dataset(path_to_data, 'test', batch_size, batch_size, n_parallel_readers)
 
     # folder extension for bookkeeping
-    datetime_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    config_string = str(latent_dim) + 'z_' + str(n_Conv) + 'Layers_' + str(int(batch_normalization)) + 'BN_' + datetime_string
-    os.makedirs(os.path.join(args.project_path, '4_runs/plots/', config_string), exist_ok=True)
+    datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    hparam_str = str(latent_dim) + 'z_' + str(n_Conv) + 'Conv_' + str(int(batch_normalization)) + 'BN_' + str(epochs) + 'ep_' + loss_fct + '_' + datetime_str
+    os.makedirs(os.path.join(args.project_path, '4_runs/plots/', hparam_str), exist_ok=True)
 
     print('create graph / model')
     # VAE model = encoder + decoder
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     encoder = tf.keras.models.Model(inputs, [z_mean, z_log_var, z], name='encoder')
     encoder.summary()
     tf.keras.utils.plot_model(
-        encoder, to_file=os.path.join(args.project_path, '4_runs/plots/', config_string, 'vae_encoder.png'),
+        encoder, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'vae_encoder.png'),
         show_shapes=True)
 
     # build decoder model
@@ -148,43 +149,42 @@ if __name__ == '__main__':
     decoder = tf.keras.models.Model(latent_inputs, outputs, name='decoder')
     decoder.summary()
     tf.keras.utils.plot_model(
-        decoder, to_file=os.path.join(args.project_path, '4_runs/plots/', config_string, 'vae_decoder.png'),
+        decoder, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'vae_decoder.png'),
         show_shapes=True)
 
     # instantiate VAE model
     outputs = decoder(encoder(inputs)[2])
     vae = tf.keras.models.Model(inputs, outputs, name='vae')
 
+    def KL_Div(y_true, y_pred):
+        kl_div = 1 + z_log_var - tf.keras.backend.square(z_mean) - tf.keras.backend.exp(z_log_var)
+        kl_div = tf.keras.backend.sum(kl_div, axis=-1)
+        kl_div *= -0.5
+        return kl_div
 
-    def vae_loss(_inputs, _outputs):
-        # VAE loss = mse_loss or xent_loss + kl_loss
+    def recon_loss(y_true, y_pred):
         if args.mse:
             reconstruction_loss = tf.keras.losses.mse(
-                tf.keras.backend.flatten(_inputs), tf.keras.backend.flatten(_outputs))
+                tf.keras.backend.flatten(y_true), tf.keras.backend.flatten(y_pred))
         else:
             reconstruction_loss = tf.keras.losses.binary_crossentropy(
-                tf.keras.backend.flatten(_inputs), tf.keras.backend.flatten(_outputs))
+                tf.keras.backend.flatten(y_true), tf.keras.backend.flatten(y_pred))
 
         reconstruction_loss *= im_dim[0] * im_dim[1]
-        kl_loss = 1 + z_log_var - tf.keras.backend.square(z_mean) - tf.keras.backend.exp(z_log_var)
-        kl_loss = tf.keras.backend.sum(kl_loss, axis=-1)
-        kl_loss *= -0.5
-        vae_loss = tf.keras.backend.mean(reconstruction_loss + kl_loss)
+        return reconstruction_loss
+
+    def vae_loss(y_true, y_pred):
+        # VAE loss = mse_loss or xent_loss + kl_loss
+        reconstruction_loss = recon_loss(y_true, y_pred)
+        kl_div = KL_Div(y_true, y_pred)
+        vae_loss = tf.keras.backend.mean(reconstruction_loss + kl_div)
         return vae_loss
 
-
-    def kl_loss(y_true, y_pred):
-        kl_loss = 1 + z_log_var - tf.keras.backend.square(z_mean) - tf.keras.backend.exp(z_log_var)
-        kl_loss = tf.keras.backend.sum(kl_loss, axis=-1)
-        kl_loss *= -0.5
-        return kl_loss
-
-
     rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
-    vae.compile(optimizer=rmsprop, loss=vae_loss, metrics=[kl_loss])
+    vae.compile(optimizer=rmsprop, loss=vae_loss, metrics=[KL_Div, recon_loss])
     vae.summary()
     tf.keras.utils.plot_model(
-        vae, to_file=os.path.join(args.project_path, '4_runs/plots/', config_string, 'vae.png'),
+        vae, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'vae.png'),
         show_shapes=True)
 
     # add callbacks for:
@@ -193,17 +193,17 @@ if __name__ == '__main__':
     # - logging and for saving model checkpoints
 
     mycb_comparison = MyCallbackCompOrigDecoded(
-        log_dir=os.path.join(args.project_path, '4_runs/plots/', config_string, 'comparison'),
+        log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'comparison'),
         dataset=ds_test, num_examples=10, log_freq=1)
 
     mycb_decoder = MyCallbackDecoder(
         encoder, decoder,
-        log_dir=os.path.join(args.project_path, '4_runs/plots/', config_string, 'decoder'),
+        log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'decoder'),
         num_examples_to_generate=16, log_freq=1
     )
 
     tbCallBack = tf.keras.callbacks.TensorBoard(
-        log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + config_string),
+        log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + hparam_str),
         histogram_freq=0,  # TODO: fix error when setting histogram_freq > 0
         batch_size=batch_size,
         write_graph=True,
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     )
 
     model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/vae_' + config_string + '.hdf5'),
+        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/vae_' + hparam_str + '.hdf5'),
         verbose=1,
         save_best_only=True,
         mode='min',
@@ -252,13 +252,13 @@ if __name__ == '__main__':
         print('training done')
 
         # save models and weights
-        dir_models = os.path.join(args.project_path, '4_runs/logging/models/', config_string)
+        dir_models = os.path.join(args.project_path, '4_runs/logging/models/', hparam_str)
         os.makedirs(dir_models, exist_ok=True)
         vae.save(os.path.join(dir_models, 'vae.hdf5'))
         encoder.save(os.path.join(dir_models, 'encoder.hdf5'))
         decoder.save(os.path.join(dir_models, 'decoder.hdf5'))
 
-        dir_weights = os.path.join(args.project_path, '4_runs/logging/weights/', config_string)
+        dir_weights = os.path.join(args.project_path, '4_runs/logging/weights/', hparam_str)
         os.makedirs(dir_weights, exist_ok=True)
         vae.save_weights(os.path.join(dir_weights, 'vae.h5'))
         encoder.save_weights(os.path.join(dir_weights, 'encoder.h5'))
@@ -291,5 +291,5 @@ if __name__ == '__main__':
                       dataset=ds_test,
                       example_images=example_images,
                       ex_im_informations=ex_im_informations,
-                      path=os.path.join(args.project_path, '4_runs/plots/', config_string, 'latent')
+                      path=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'latent')
                       )
