@@ -3,7 +3,7 @@
 # request resources
 # -----------------------
 #SBATCH --time=0-04:00:00
-#SBATCH --mem=55G
+#SBATCH --mem=65G
 #SBATCH --cpus-per-task=5
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
