@@ -2,7 +2,7 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-04:00:00
+#SBATCH --time=0-06:00:00
 #SBATCH --mem=65G
 #SBATCH --cpus-per-task=5
 #SBATCH --gres=gpu:1
@@ -25,4 +25,4 @@ cp 2_data/05_images_masked/*.tfrecord /tmp/$SLURM_JOB_ID    # copy tfrecords fil
 cp 2_data/05_images_masked/*.txt /tmp/$SLURM_JOB_ID         # copy other necessary files to temporary directory
                                                             # run python script with temporary directory as input for the images
 
-srun python 3_code/tf_vae_tfrecords.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z 128 -e 100
+srun python 3_code/tf_vae_tfrecords.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z 128 --batch_normalization -e 200
