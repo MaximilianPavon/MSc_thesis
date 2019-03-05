@@ -67,7 +67,15 @@ if __name__ == '__main__':
         args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_masked.csv')
     path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/05_images_masked/')
     im_dim = (512, 512)
-    batch_size = 64 if not op_sys == 'Darwin' else 16
+
+    if not op_sys == 'Darwin':
+        if not args.mse and args.batch_normalization:
+            # batch_size has to be reduced when using Cross Entropy loss together with batch normalization
+            batch_size = 48
+        else:
+            batch_size = 64
+    else:
+        batch_size = 16
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
     n_Conv = 6
