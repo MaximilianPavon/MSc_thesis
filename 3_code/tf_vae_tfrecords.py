@@ -276,31 +276,35 @@ if __name__ == '__main__':
         decoder.save_weights(os.path.join(dir_weights, 'decoder.h5'))
         print('models and weights saved')
 
-    # define example images and their information tag for plotting them in the latent space
-    example_images = [
-        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0040491234-A_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/8930312979-A_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0090248594-A_BANDS-S2-L1C.tiff'),
-        os.path.join(args.project_path, '2_data/05_images_masked/dataset1/9810286471-A_BANDS-S2-L1C.tiff')
-    ]
-
-    if op_sys == 'Darwin':
+    if False:
+        # define example images and their information tag for plotting them in the latent space
         example_images = [
-            os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
-            os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
-            os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
-            os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff')
+            os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0040491234-A_BANDS-S2-L1C.tiff'),
+            os.path.join(args.project_path, '2_data/05_images_masked/dataset1/8930312979-A_BANDS-S2-L1C.tiff'),
+            os.path.join(args.project_path, '2_data/05_images_masked/dataset1/0090248594-A_BANDS-S2-L1C.tiff'),
+            os.path.join(args.project_path, '2_data/05_images_masked/dataset1/9810286471-A_BANDS-S2-L1C.tiff')
         ]
 
-    ex_im_informations = [
-        'only full crop loss',
-        'both partial and full crop loss',
-        'no loss',
-        'only partial crop loss',
-    ]
-    plot_latent_space((encoder, decoder),
-                      dataset=ds_test,
-                      example_images=example_images,
-                      ex_im_informations=ex_im_informations,
-                      path=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'latent')
-                      )
+        if op_sys == 'Darwin':
+            example_images = [
+                os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
+                os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
+                os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff'),
+                os.path.join(args.project_path, '2_data/05_images_masked/dataset8/0050496277-A_BANDS-S2-L1C.tiff')
+            ]
+
+        ex_im_informations = [
+            'only full crop loss',
+            'both partial and full crop loss',
+            'no loss',
+            'only partial crop loss',
+        ]
+
+        plot_latent_space((encoder, decoder),
+                          dataset=ds_test,
+                          steps_per_epoch=steps_per_epoch_test,
+                          batch_size=batch_size,
+                          example_images=example_images,
+                          ex_im_informations=ex_im_informations,
+                          path=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'latent')
+                          )
