@@ -27,13 +27,12 @@ class Monitor(Thread):
 
 
 class MyCallbackDecoder(tf.keras.callbacks.Callback):
-    def __init__(self, encoder, decoder, log_dir, num_examples_to_generate=16, log_freq=10):
+    def __init__(self, decoder, log_dir, num_examples_to_generate=16, log_freq=10):
         super(MyCallbackDecoder, self).__init__()
-        self.encoder = encoder
         self.decoder = decoder
         self.log_dir = log_dir
         self.num_examples_to_generate = num_examples_to_generate
-        self.latent_dim = self.encoder.output[0].shape.dims[1].value
+        self.latent_dim = self.decoder.input[0].shape.dims[0].value
         self.log_freq = log_freq
         os.makedirs(self.log_dir, exist_ok=True)
 

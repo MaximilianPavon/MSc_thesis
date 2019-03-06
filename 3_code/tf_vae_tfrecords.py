@@ -205,10 +205,8 @@ if __name__ == '__main__':
         dataset=ds_test, num_examples=10, log_freq=1)
 
     mycb_decoder = MyCallbackDecoder(
-        encoder, decoder,
-        log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'decoder'),
-        num_examples_to_generate=16, log_freq=1
-    )
+        decoder, log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'decoder'),
+        num_examples_to_generate=16, log_freq=1)
 
     tbCallBack = tf.keras.callbacks.TensorBoard(
         log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + hparam_str),
