@@ -411,11 +411,38 @@ def _parse_function(example_proto):
 
     im_path = parsed_features['image_path']
     # im_path is still an encoded tf.Tensor and
-    # thus needs to be converted to numpy with .numpy() and then decoded decode('utf-8')
+    # thus needs to be converted to numpy with .numpy() and then decoded .decode('utf-8')
 
     # Second: return a tuple of desired variables
     # return image, image, f_cl, p_cl, im_path
     return image, image
+
+
+def _parse_function_1_output(example_proto):
+    feature_description = {
+        'image': tf.FixedLenFeature([], tf.string),
+        'full_crop_loss_label': tf.FixedLenFeature([], tf.float32),
+        'partial_crop_loss_label': tf.FixedLenFeature([], tf.float32),
+        'image_path': tf.FixedLenFeature([], tf.string, default_value=''),
+    }
+
+    # First: parse the input tf.Example proto using the dictionary above.
+    parsed_features = tf.parse_single_example(example_proto, feature_description)
+
+    # Decode saved image string into an array
+    image = tf.decode_raw(parsed_features['image'], tf.float32)  # tensor is still flattened
+    image = tf.reshape(image, (512, 512, 13))
+
+    f_cl = parsed_features['full_crop_loss_label']
+    p_cl = parsed_features['partial_crop_loss_label']
+
+    im_path = parsed_features['image_path']
+    # im_path is still an encoded tf.Tensor and
+    # thus needs to be converted to numpy with .numpy() and then decoded .decode('utf-8')
+
+    # Second: return a tuple of desired variables
+    # return image, image, f_cl, p_cl, im_path
+    return image
 
 
 def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
@@ -443,7 +470,10 @@ def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
     # dataset = dataset.shuffle(n_files)
 
     # Maps the parser on every filepath in the array. Set the number of parallel loaders here
-    dataset = dataset.map(_parse_function, num_parallel_calls=os.cpu_count() - 1)
+    if name == 'test':
+        dataset = dataset.map(_parse_function_1_output, num_parallel_calls=os.cpu_count() - 1)
+    else:
+        dataset = dataset.map(_parse_function, num_parallel_calls=os.cpu_count() - 1)
     dataset = dataset.batch(batch_size=batch_size)
 
     # replaces .map and .batch -- but DEPRECATED??

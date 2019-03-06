@@ -99,13 +99,14 @@ class MyCallbackCompOrigDecoded(tf.keras.callbacks.Callback):
         iterator = self.dataset.take(self.num_examples).make_initializable_iterator()
         sess.run(iterator.initializer)
         # return tuple of images, images (depends on what _parse_function returns)
-        im1, im2 = iterator.get_next()
+        im1 = iterator.get_next()
         # get access to arrays
         im1_arr = sess.run(im1)
         if im1_arr.shape[0] > self.num_examples:
             im1_arr = im1_arr[0:self.num_examples]
         # store arrays to keep them constant over all epochs
         self.orig_images = im1_arr
+        sess.close()
 
     def on_epoch_end(self, epoch, logs=None):
 
