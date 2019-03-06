@@ -48,7 +48,7 @@ class MyCallbackDecoder(tf.keras.callbacks.Callback):
 
             for i in range(predictions.shape[0]):
                 plt.subplot(4, 4, i + 1)
-                im = predictions[i][ :, :, [3, 2, 1]]
+                im = predictions[i][:, :, [3, 2, 1]]
                 im = exposure.rescale_intensity(im)
                 plt.imshow(im)
                 plt.axis('off')
@@ -124,7 +124,7 @@ class MyCallbackCompOrigDecoded(tf.keras.callbacks.Callback):
 
                 # second row (1 + num_examples ...... 2 * num_examples) shows the decoded images
                 plt.subplot(2, self.num_examples,  i + self.num_examples + 1)
-                decoded_im = predictions[i][ :, :, [3, 2, 1]]
+                decoded_im = predictions[i][:, :, [3, 2, 1]]
                 decoded_im = exposure.rescale_intensity(decoded_im)
                 plt.imshow(decoded_im)
                 plt.axis('off')

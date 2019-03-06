@@ -229,7 +229,12 @@ if __name__ == '__main__':
         period=1,
     )
 
-    callbacks_list = [mycb_comparison, mycb_decoder, model_checkpoint, tbCallBack]
+    callbacks_list = [
+        mycb_comparison,
+        mycb_decoder,
+        model_checkpoint,
+        tbCallBack
+    ]
 
     if args.weights:
         print(f'loading weights from: {args.weights}')
