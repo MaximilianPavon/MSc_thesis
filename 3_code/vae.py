@@ -29,6 +29,9 @@ if __name__ == '__main__':
     parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
     parser.add_argument("--batch_normalization", action='store_true', default=False,
                         help="Specify if batch normalizations shall be applied. Default False.")
+    parser.add_argument("--param_alternation", type=str,
+                        help="When looping over certain hyper parameters, this flag adds the hyper parameter of "
+                             "interest to the fron of the hyper parameter string.")
     parser.add_argument("--debug", action='store_true', help="Run in debug mode - reduces epochs and steps_per_epoch")
     args = parser.parse_args()
 
@@ -94,7 +97,14 @@ if __name__ == '__main__':
 
     # folder extension for bookkeeping
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    hparam_str = str(latent_dim) + 'z_' + str(n_Conv) + 'Conv_' + str(int(batch_normalization)) + 'BN_' + str(epochs) + 'ep_' + loss_fct + '_' + datetime_str
+    hparam_str = args.param_alternation + '-' if args.param_alternation else ''
+    hparam_str += str(latent_dim) + 'z_'
+    hparam_str += str(n_Conv) + 'Conv_'
+    hparam_str += str(int(batch_normalization)) + 'BN_'
+    hparam_str += str(epochs) + 'ep_'
+    hparam_str += loss_fct + '_'
+    hparam_str += datetime_str
+
     os.makedirs(os.path.join(args.project_path, '4_runs/plots/', hparam_str), exist_ok=True)
 
     print('create graph / model')
@@ -194,7 +204,6 @@ if __name__ == '__main__':
     tf.keras.utils.plot_model(
         vae, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'vae.png'),
         show_shapes=True)
-
 
     if args.weights:
         print(f'loading weights from: {args.weights}')

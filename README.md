@@ -10,5 +10,5 @@ Generative models have a number of parameters significantly smaller than the amo
 0. The folder `0_setup_env` contains `.yml` files for setting up the virtual python environment either with CPU or GPU option.
 1. The folder `1_data_analysis_download` contains initial `.ipynb` files for previewing the given data as well as a script for downloading the satellite images from SentinelHub.
 2. The folder `2_data` contains the original and processed data. Due to space limitations those folders are generally empty.
-3. The folder `3_code` contains the most important python scripts. The VAE is defined in `tf_vae_tfrecords.py`, the remaining files are mostly helper files and some old attempts.
+3. The folder `3_code` contains the most important python scripts. The VAE is defined in `vae.py`, the remaining files are mostly helper files and some old attempts.
 4. The folder `4_runs` is thought for keeping the logs as well as written plots organised. Most of them will not be maintained in this repository as they are not final results. But I will upload some of the plots for demonstration purposes. 
