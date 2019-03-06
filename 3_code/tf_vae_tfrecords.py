@@ -81,7 +81,7 @@ if __name__ == '__main__':
     n_Conv = 6
     kernel_size = 3
     filters = 20
-    latent_dim = args.latent_dim if args.latent_dim else 2
+    latent_dim = args.latent_dim if args.latent_dim else 64
     epochs = args.epochs if args.epochs else 100
     batch_normalization = args.batch_normalization
     loss_fct = 'MSE' if args.mse else 'X-Ent'
@@ -195,46 +195,6 @@ if __name__ == '__main__':
         vae, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'vae.png'),
         show_shapes=True)
 
-    # add callbacks for:
-    # - creating saving decoded image after log_freq epochs
-    # - TensorBoard logger
-    # - logging and for saving model checkpoints
-
-    mycb_comparison = MyCallbackCompOrigDecoded(
-        log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'comparison'),
-        dataset=ds_test, num_examples=10, log_freq=1)
-
-    mycb_decoder = MyCallbackDecoder(
-        decoder, log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'decoder'),
-        num_examples_to_generate=16, log_freq=1)
-
-    tbCallBack = tf.keras.callbacks.TensorBoard(
-        log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + hparam_str),
-        histogram_freq=0,  # TODO: fix error when setting histogram_freq > 0
-        batch_size=batch_size,
-        write_graph=True,
-        write_grads=False,
-        write_images=False,
-        embeddings_freq=0,
-        embeddings_layer_names=None,
-        embeddings_metadata=None,
-        embeddings_data=None,
-    )
-
-    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-        filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/vae_' + hparam_str + '.hdf5'),
-        verbose=1,
-        save_best_only=True,
-        mode='min',
-        period=1,
-    )
-
-    callbacks_list = [
-        mycb_comparison,
-        mycb_decoder,
-        model_checkpoint,
-        tbCallBack
-    ]
 
     if args.weights:
         print(f'loading weights from: {args.weights}')
@@ -245,12 +205,56 @@ if __name__ == '__main__':
     elif args.model:
         print(f'loading models from: {args.model}')
         vae = tf.keras.models.load_model(os.path.join(args.model, 'vae.hdf5'),
-                                         custom_objects={'vae_loss': vae_loss})
+                                         custom_objects={'vae_loss': vae_loss,
+                                                         'KL_Div': KL_Div,
+                                                         'recon_loss': recon_loss})
         encoder = tf.keras.models.load_model(os.path.join(args.model, 'encoder.hdf5'))
         decoder = tf.keras.models.load_model(os.path.join(args.model, 'decoder.hdf5'))
         print('models loaded')
+
     else:
         # train the autoencoder
+
+        # add callbacks for:
+        # - creating saving decoded image after log_freq epochs
+        # - TensorBoard logger
+        # - logging and for saving model checkpoints
+
+        mycb_comparison = MyCallbackCompOrigDecoded(
+            log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'comparison'),
+            dataset=ds_test, num_examples=10, log_freq=1)
+
+        mycb_decoder = MyCallbackDecoder(
+            decoder, log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'decoder'),
+            num_examples_to_generate=16, log_freq=1)
+
+        tbCallBack = tf.keras.callbacks.TensorBoard(
+            log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + hparam_str),
+            histogram_freq=0,  # TODO: fix error when setting histogram_freq > 0
+            batch_size=batch_size,
+            write_graph=True,
+            write_grads=False,
+            write_images=False,
+            embeddings_freq=0,
+            embeddings_layer_names=None,
+            embeddings_metadata=None,
+            embeddings_data=None,
+        )
+
+        model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+            filepath=os.path.join(args.project_path, '4_runs/logging/checkpoints/vae_' + hparam_str + '.hdf5'),
+            verbose=1,
+            save_best_only=True,
+            mode='min',
+            period=1,
+        )
+        callbacks_list = [
+            mycb_comparison,
+            mycb_decoder,
+            model_checkpoint,
+            tbCallBack
+        ]
+
         print('start the training')
         vae.fit(
             ds_train,
