@@ -2,13 +2,13 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-04:00:00
+#SBATCH --time=0-12:00:00
 #SBATCH --mem=65G
 #SBATCH --cpus-per-task=5
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
 #SBATCH --array=0-1
-#SBATCH --output=sl-batch_norm-%A_%a.txt
+#SBATCH --output=sl-batch_norm_fixed-%A_%a.txt
 
 # set -x # print all output to log file
 
@@ -37,8 +37,10 @@ source activate edward
 
 which python
 
+prefix=batch_norm_fixed
+
 if [ $SLURM_ARRAY_TASK_ID -eq 0 ];then
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 --mse --param_alternation batch_norm
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 --mse --param_alternation ${prefix} -e 120
 else
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 --mse --param_alternation batch_norm --batch_normalization
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 --mse --param_alternation ${prefix} -e 120 --batch_normalization
 fi

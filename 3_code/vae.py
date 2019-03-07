@@ -89,6 +89,7 @@ if __name__ == '__main__':
     batch_normalization = args.batch_normalization
     loss_fct = 'MSE' if args.mse else 'X-Ent'
     n_parallel_readers = 4
+    use_bias = not batch_normalization  # if batch_normalization is used, a bias term can be omitted
 
     # create Dataset objects
     ds_train, steps_per_epoch_train = create_dataset(path_to_data, 'train', batch_size, batch_size, n_parallel_readers)
@@ -112,24 +113,37 @@ if __name__ == '__main__':
     # build encoder model
     inputs = tf.keras.layers.Input(shape=input_shape, name='encoder_input')
     x = inputs
+
+    if batch_normalization:
+        x = tf.keras.layers.BatchNormalization()(x)
+
     for i in range(n_Conv):
-        # filters *= 2
         x = tf.keras.layers.Conv2D(filters=filters,
                                    kernel_size=kernel_size,
-                                   activation='relu',
                                    strides=2,
-                                   padding='same')(x)
+                                   padding='same',
+                                   use_bias=use_bias)(x)
+
         if batch_normalization:
             x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Activation(activation='relu')(x)
 
     # shape info needed to build decoder model
     shape = tf.keras.backend.int_shape(x)
 
-    # generate latent vector Q(z|X)
     x = tf.keras.layers.Flatten()(x)
-    # x = tf.keras.layers.Dense(16, activation='relu')(x)
-    z_mean = tf.keras.layers.Dense(latent_dim, name='z_mean')(x)
-    z_log_var = tf.keras.layers.Dense(latent_dim, name='z_log_var')(x)
+
+    # generate latent vector Q(z|X)
+    z_mean = tf.keras.layers.Dense(latent_dim, use_bias=use_bias)(x)
+    z_log_var = tf.keras.layers.Dense(latent_dim, use_bias=use_bias)(x)
+
+    if batch_normalization:
+        z_mean = tf.keras.layers.BatchNormalization()(z_mean)
+        z_log_var = tf.keras.layers.BatchNormalization()(z_log_var)
+
+    z_mean = tf.keras.layers.Activation(activation='relu', name='z_mean')(z_mean)
+    z_log_var = tf.keras.layers.Activation(activation='relu', name='z_log_var')(z_log_var)
 
     # use reparameterization trick to push the sampling out as input
     # note that "output_shape" isn't necessary with the TensorFlow backend
@@ -144,24 +158,41 @@ if __name__ == '__main__':
 
     # build decoder model
     latent_inputs = tf.keras.layers.Input(shape=(latent_dim,), name='z_sampling')
-    x = tf.keras.layers.Dense(shape[1] * shape[2] * shape[3], activation='relu')(latent_inputs)
+    x = latent_inputs
+
+    if batch_normalization:
+        x = tf.keras.layers.BatchNormalization()(x)
+
+    x = tf.keras.layers.Dense(shape[1] * shape[2] * shape[3], use_bias=use_bias)(x)
+
+    if batch_normalization:
+        x = tf.keras.layers.BatchNormalization()(x)
+
+    x = tf.keras.layers.Activation(activation='relu')(x)
+
     x = tf.keras.layers.Reshape((shape[1], shape[2], shape[3]))(x)
 
     for i in range(n_Conv):
-        # filters //= 2
         x = tf.keras.layers.Conv2DTranspose(filters=filters,
                                             kernel_size=kernel_size,
-                                            activation='relu',
                                             strides=2,
-                                            padding='same')(x)
+                                            padding='same',
+                                            use_bias=use_bias)(x)
         if batch_normalization:
             x = tf.keras.layers.BatchNormalization()(x)
 
-    outputs = tf.keras.layers.Conv2DTranspose(filters=n_channels,
-                                              kernel_size=kernel_size,
-                                              activation='sigmoid',
-                                              padding='same',
-                                              name='decoder_output')(x)
+        x = tf.keras.layers.Activation(activation='relu')(x)
+
+    # after the last Conv2DTranspose bring the output in the origninal shape
+    x = tf.keras.layers.Conv2DTranspose(filters=n_channels,
+                                        kernel_size=kernel_size,
+                                        padding='same',
+                                        use_bias=use_bias)(x)
+
+    if batch_normalization:
+        x = tf.keras.layers.BatchNormalization()(x)
+
+    outputs = tf.keras.layers.Activation(activation='relu', name='decoder_output')(x)
 
     # instantiate decoder model
     decoder = tf.keras.models.Model(latent_inputs, outputs, name='decoder')
