@@ -72,13 +72,10 @@ if __name__ == '__main__':
     im_dim = (512, 512)
 
     if not op_sys == 'Darwin':
-        if not args.mse and args.batch_normalization:
-            # batch_size has to be reduced when using Cross Entropy loss together with batch normalization
-            batch_size = 48
-        else:
-            batch_size = 64
+        batch_size = 48
     else:
         batch_size = 16
+        
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
     n_Conv = 6
