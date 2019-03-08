@@ -72,7 +72,7 @@ if __name__ == '__main__':
     im_dim = (512, 512)
 
     if not op_sys == 'Darwin':
-        batch_size = 48
+        batch_size = 32
     else:
         batch_size = 16
         
