@@ -343,7 +343,7 @@ def plot_latent_space(model, dataset, steps_per_epoch, batch_size, example_image
                   'shown)')
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     # plt.show()
-    plt.clf()
+    plt.close('all')
 
     n = 30
     print(f'display a {n}x{n} 2D manifold of reconstructed satellite images')
@@ -388,7 +388,7 @@ def plot_latent_space(model, dataset, steps_per_epoch, batch_size, example_image
         plt.title('Decoded latent space (only first two dimensions of latent space are shown)')
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     # plt.show()
-    plt.clf()
+    plt.close('all')
 
 
 def _parse_function(example_proto):

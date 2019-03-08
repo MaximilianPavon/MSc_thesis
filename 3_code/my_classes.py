@@ -58,7 +58,7 @@ class MyCallbackDecoder(tf.keras.callbacks.Callback):
                 os.path.join(self.log_dir, 'image_at_epoch_{:04d}.png'.format(epoch)),
                 dpi=100, bbox_inches='tight')
             # plt.show()
-            plt.clf()
+            plt.close('all')
             pass
         else:
             pass
@@ -135,7 +135,7 @@ class MyCallbackCompOrigDecoded(tf.keras.callbacks.Callback):
                 os.path.join(self.log_dir, 'image_at_epoch_{:04d}.png'.format(epoch)),
                 dpi=100, bbox_inches='tight')
             # plt.show()
-            plt.clf()
+            plt.close('all')
             pass
         else:
             pass
