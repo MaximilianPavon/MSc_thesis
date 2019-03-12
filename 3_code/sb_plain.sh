@@ -25,4 +25,4 @@ source activate edward
 which python
 
 # run python script with temporary directory as input for the images
-srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z 128 --batch_normalization -e 100
+srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z 1024 --mse -e 70 --param_alternation plain --n_conv 10

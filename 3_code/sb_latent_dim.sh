@@ -42,4 +42,4 @@ z=$((2**$SLURM_ARRAY_TASK_ID))
 echo "latent dim: $z"
 
 # run python script with temporary directory as input for the images
-srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ --mse --batch_normalization -z $z --param_alternation latent_dim
+srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ --mse -e 70 -z $z --param_alternation latent_dim

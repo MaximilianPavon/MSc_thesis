@@ -38,7 +38,7 @@ source activate edward
 which python
 
 if [ $SLURM_ARRAY_TASK_ID -eq 0 ];then
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 --batch_normalization --param_alternation loss
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 -e 70 --param_alternation loss
 else
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 --batch_normalization --param_alternation loss --mse
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 -e 70 --param_alternation loss --mse
 fi
