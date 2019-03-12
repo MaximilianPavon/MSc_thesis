@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=5
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
-#SBATCH --array=1-10
+#SBATCH --array=3-20
 #SBATCH --output=sl-conv-%A_%a.txt
 
 # set -x # print all output to log file

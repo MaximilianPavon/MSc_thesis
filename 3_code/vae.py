@@ -71,12 +71,6 @@ if __name__ == '__main__':
         args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_masked.csv')
     path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/05_images_masked/')
     im_dim = (512, 512)
-
-    if not op_sys == 'Darwin':
-        batch_size = 32
-    else:
-        batch_size = 16
-        
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
     n_Conv = args.n_conv if args.n_conv else 6
@@ -88,6 +82,11 @@ if __name__ == '__main__':
     loss_fct = 'MSE' if args.mse else 'X-Ent'
     n_parallel_readers = 4
     use_bias = not batch_normalization  # if batch_normalization is used, a bias term can be omitted
+
+    if not op_sys == 'Darwin':
+        batch_size = 32
+    else:
+        batch_size = 16
 
     # create Dataset objects
     ds_train, steps_per_epoch_train = create_dataset(path_to_data, 'train', batch_size, batch_size, n_parallel_readers)
