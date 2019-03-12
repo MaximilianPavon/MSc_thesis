@@ -27,6 +27,7 @@ if __name__ == '__main__':
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
     parser.add_argument('-e', "--epochs", type=int, help="Specify the number of training epochs")
     parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
+    parser.add_argument("--n_conv", type=int, help="Specify the number of convolutional layers.")
     parser.add_argument("--batch_normalization", action='store_true', default=False,
                         help="Specify if batch normalizations shall be applied. Default False.")
     parser.add_argument("--param_alternation", type=str,
@@ -78,7 +79,7 @@ if __name__ == '__main__':
         
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
-    n_Conv = 6
+    n_Conv = args.n_conv if args.n_conv else 6
     kernel_size = 3
     filters = 20
     latent_dim = args.latent_dim if args.latent_dim else 64
@@ -115,9 +116,9 @@ if __name__ == '__main__':
         x = tf.keras.layers.BatchNormalization()(x)
 
     for i in range(n_Conv):
-        x = tf.keras.layers.Conv2D(filters=filters,
+        x = tf.keras.layers.Conv2D(filters=filters if i < 5 else filters // 2,
                                    kernel_size=kernel_size,
-                                   strides=2,
+                                   strides=2 if i < 5 else 1,
                                    padding='same',
                                    use_bias=use_bias)(x)
 
@@ -169,10 +170,10 @@ if __name__ == '__main__':
 
     x = tf.keras.layers.Reshape((shape[1], shape[2], shape[3]))(x)
 
-    for i in range(n_Conv):
-        x = tf.keras.layers.Conv2DTranspose(filters=filters,
+    for i in reversed(range(n_Conv)):
+        x = tf.keras.layers.Conv2DTranspose(filters=filters if i < 5 else filters // 2,
                                             kernel_size=kernel_size,
-                                            strides=2,
+                                            strides=2 if i < 5 else 1,
                                             padding='same',
                                             use_bias=use_bias)(x)
         if batch_normalization:
