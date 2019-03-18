@@ -40,5 +40,5 @@ if __name__ == '__main__':
 
         plt.title(f'True color of image: {f_name}')
         plt.savefig(f'{f_name}.png')
-        plt.clf()
+        plt.close('all')
 
