@@ -48,6 +48,8 @@ def save_images_for_df(df, path_to_data, layers, max_cc_list, time_window, INSTA
     if len(not_found_rows) > 0:
         df = df_not_found_rows
 
+    df = df.reset_index()
+
     for index, row in tqdm(df.iterrows(), total=n_fields):
         for layer in layers:
             # get parcel field for naming the image
@@ -96,8 +98,8 @@ def save_images_for_df(df, path_to_data, layers, max_cc_list, time_window, INSTA
                                              custom_url_params={CustomUrlParam.ATMFILTER: 'ATMCOR'})
 
                     # get data and simultaneously save the data
-                    wms_request.get_data(save_data=True, max_threads=os.cpu_count(), raise_download_errors=False)
-                    n_images = len(wms_request.get_filename_list())
+                    wms_request.get_data(save_data=True, data_filter=[-1], max_threads=os.cpu_count(), raise_download_errors=False)
+                    n_images = len(wms_request.get_filename_list())  # n_images found, only last is actually downloaded
                     # if all records were found with present cc, no need to check other cc values
                     if n_images > 0:
                         break
@@ -105,15 +107,10 @@ def save_images_for_df(df, path_to_data, layers, max_cc_list, time_window, INSTA
                 if n_images < 1:
                     not_found_rows.append(row.tolist())
                 else:
-                    # remove additional images, in case more than one image was downloaded and rename the last file
-                    # original naming would be: wms_TRUE-COLOR-S2-L1C_EPSG4326_46.16_-16.15_46.51_-15.58_2017-12-15T07-12
-                    # -03_512X849.png
-                    for i in range(n_images):
-                        if i + 1 < n_images:
-                            os.remove(path_to_data + wms_request.get_filename_list()[i])
-                        elif i + 1 == n_images:
-                            os.rename(path_to_data + wms_request.get_filename_list()[i],
-                                      path_to_data + parcel_field + '_' + layer + file_extension)
+                    # remove additional images, is not required anymore since only the last images will be downloaded
+                    # original naming would be: wms_TRUE-COLOR-S2-L1C_EPSG4326_46.16_-16.15_46.51_-15.58_2017-12-15T07-12-03_512X849.png
+                    os.rename(path_to_data + wms_request.get_filename_list()[-1],
+                              path_to_data + parcel_field + '_' + layer + file_extension)
 
     # create a dataframe of not found rows
     df_not_found_rows = pd.DataFrame(not_found_rows, columns=list(df.columns.values))
