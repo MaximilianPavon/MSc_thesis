@@ -97,11 +97,11 @@ def save_images_for_df(df, path_to_data, layers, max_cc_list, time_window, INSTA
                                              instance_id=INSTANCE_ID,
                                              custom_url_params={CustomUrlParam.ATMFILTER: 'ATMCOR'})
 
-                    # get data and simultaneously save the data
-                    wms_request.get_data(save_data=True, data_filter=[-1], max_threads=os.cpu_count(), raise_download_errors=False)
                     n_images = len(wms_request.get_filename_list())  # n_images found, only last is actually downloaded
                     # if all records were found with present cc, no need to check other cc values
-                    if n_images > 0:
+                    if n_images > 0:  # only download images if images were found
+                        # get data and simultaneously save the data
+                        wms_request.get_data(save_data=True, data_filter=[-1], max_threads=os.cpu_count(), raise_download_errors=False)
                         break
 
                 if n_images < 1:
