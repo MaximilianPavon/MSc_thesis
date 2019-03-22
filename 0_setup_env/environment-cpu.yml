@@ -1,4 +1,4 @@
-name: edward
+name: edward_cpu
 channels:
   # - conda-forge
   - defaults
