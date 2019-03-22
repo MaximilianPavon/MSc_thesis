@@ -1,4 +1,4 @@
-name: edward
+name: edward_cpu_tf2.0
 channels:
   # - conda-forge
   - defaults
@@ -7,16 +7,17 @@ dependencies:
   - jupyterlab
   - tqdm
   - matplotlib
-  - numpy
+  - numpy=1.15.4
   - pandas
   - pillow
   - pydot
   - scikit-learn
   - scikit-image
-  - tensorflow
+#  - tensorflow
   - geopandas
   - rasterio
   - pip:
-    - edward
-    - sentinelhub
-    - gputil
+      - tensorflow==2.0.0-alpha0
+      - edward
+      - sentinelhub
+      - gputil
