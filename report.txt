@@ -1,0 +1,65 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 4 files
+Detected 1 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: 3_code_tf1.12/my_classes.py
+--------------------------------------------------------------------------------
+3_code_tf1.12/my_classes.py:99:19: WARNING: Changing dataset.make_initializable_iterator() to tf.compat.v1.data.make_initializable_iterator(dataset). Please check this transformation.
+
+================================================================================
+Detailed log follows:
+
+================================================================================
+================================================================================
+Input tree: '3_code_tf1.12'
+================================================================================
+--------------------------------------------------------------------------------
+Processing file '3_code_tf1.12/my_classes.py'
+ outputting to '3_code_tf2.0/my_classes.py'
+--------------------------------------------------------------------------------
+
+41:44: INFO: Renamed 'tf.random_normal' to 'tf.random.normal'
+97:15: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+99:19: WARNING: Changing dataset.make_initializable_iterator() to tf.compat.v1.data.make_initializable_iterator(dataset). Please check this transformation.
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '3_code_tf1.12/my_functions.py'
+ outputting to '3_code_tf2.0/my_functions.py'
+--------------------------------------------------------------------------------
+
+396:17: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+397:32: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+398:35: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+399:22: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+403:22: INFO: Added keywords to args of function 'tf.parse_single_example'
+403:22: INFO: Renamed 'tf.parse_single_example' to 'tf.io.parse_single_example'
+406:12: INFO: Renamed 'tf.decode_raw' to 'tf.io.decode_raw'
+423:17: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+424:32: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+425:35: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+426:22: INFO: Renamed 'tf.FixedLenFeature' to 'tf.io.FixedLenFeature'
+430:22: INFO: Added keywords to args of function 'tf.parse_single_example'
+430:22: INFO: Renamed 'tf.parse_single_example' to 'tf.io.parse_single_example'
+433:12: INFO: Renamed 'tf.decode_raw' to 'tf.io.decode_raw'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '3_code_tf1.12/gpu-test.py'
+ outputting to '3_code_tf2.0/gpu-test.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file '3_code_tf1.12/vae.py'
+ outputting to '3_code_tf2.0/vae.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
