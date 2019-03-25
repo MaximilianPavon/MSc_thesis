@@ -357,11 +357,6 @@ def split_dataframe(df, train_p, val_p, random_state=200):
     val_df = df.sample(frac=val_p / (1 - train_p), random_state=random_state)
     test_df = df.drop(val_df.index)
 
-    # make field parcel as indeces including the relative path -> partial path
-    train_df = train_df.set_index('partial path')
-    val_df = val_df.set_index('partial path')
-    test_df = test_df.set_index('partial path')
-
     return train_df, val_df, test_df
 
 
