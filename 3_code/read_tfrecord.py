@@ -14,6 +14,7 @@ def _parse_function(example_proto):
         'full_crop_loss_label': tf.FixedLenFeature([], tf.float32),
         'partial_crop_loss_label': tf.FixedLenFeature([], tf.float32),
         'image_path': tf.FixedLenFeature([], tf.string, default_value=''),
+        'plant': tf.FixedLenFeature([], tf.string, default_value=''),
     }
 
     # First: parse the input tf.Example proto using the dictionary above.
@@ -27,11 +28,12 @@ def _parse_function(example_proto):
     p_cl = parsed_features['partial_crop_loss_label']
 
     im_path = parsed_features['image_path']
-    # im_path is still an encoded tf.Tensor and
+    plant_name = parsed_features['plant']
+    # im_path and plant_name are still an encoded tf.Tensor and
     # thus needs to be converted to numpy with .numpy() and then decoded decode('utf-8')
 
     # Second: return a tuple of desired variables
-    return image, image, f_cl, p_cl, im_path
+    return image, image, f_cl, p_cl, im_path, plant_name
 
 if __name__ == '__main__':
 
@@ -67,13 +69,15 @@ if __name__ == '__main__':
         parsed_dataset = tf.data.TFRecordDataset(tf_records_filenames).map(
             _parse_function, num_parallel_calls=os.cpu_count())
 
-        for im1, im2, f_cl, p_cl, im_path in parsed_dataset.take(1):
+        for im1, im2, f_cl, p_cl, im_path, plant_name in parsed_dataset.take(1):
 
             print('im1.shape:', im1.shape)
             print('im2.shape:', im2.shape)
             print(f_cl)
             print(p_cl)
             print(im_path)
+            print(plant_name)
+            print(plant_name.numpy().decode('utf-8'))
 
             im_path = im_path.numpy().decode('utf-8')
             im_path = os.path.join(args.project_path, im_path)
@@ -82,3 +86,6 @@ if __name__ == '__main__':
             print(np.array_equal(im1.numpy(), im_loaded))
 
             print()
+            break
+        break
+
