@@ -174,7 +174,7 @@ def preprocess_df_Rehuohra(path_to_csv, path_to_data, colour_band, file_extensio
     # print('maximum number for', plant_max, 'with', num, 'entries')
     df = df[plants == plant_max]
 
-    col_list = ['field parcel', 'full crop loss scaled', 'partial crop loss scaled']
+    col_list = ['field parcel', 'PLANT', 'full crop loss scaled', 'partial crop loss scaled']
 
     # print('trim data frame to:', col_list)
     df = df[col_list]
@@ -322,7 +322,7 @@ def preprocess_df_top4(path_to_csv, path_to_data, colour_band, file_extension, b
     if np.any(np.array([df.index.isin(i_losses), df.index.isin(i_noloss6ks)]), axis=0).all():
         print(f'checking file existence for {len(df)} fields for {top_5_plants}')
 
-        col_list = ['field parcel', 'full crop loss scaled', 'partial crop loss scaled']
+        col_list = ['field parcel', 'PLANT', 'full crop loss scaled', 'partial crop loss scaled']
 
         # print('trim data frame to:', col_list)
         df = df[col_list]
