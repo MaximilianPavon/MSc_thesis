@@ -46,12 +46,16 @@ if __name__ == '__main__':
             sys.exit('Please specify the computer this programme runs on using \'triton\', \'mac\' or \'workstation\'')
 
     # load shape file containing the field parcel geometries
-    shape_file = os.path.join(args.project_path, '2_data/04_small_data/rap_2015_rehuohra_shp/rap_2015_rehuohra.shp')
+    # shape_file = os.path.join(args.project_path, '2_data/04_small_data/rap_2015_rehuohra_shp/rap_2015_rehuohra.shp')
+    shape_file = os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.shp')
     vector_df = gpd.read_file(shape_file)
 
     # get path to all the images
-    df = pd.read_csv(os.path.join(args.project_path, '2_data/04_small_data/fof_train_triton.csv'))
-    images = [os.path.join(args.project_path, i) for i in df['triton_path'].tolist()]
+    # df = pd.read_csv(os.path.join(args.project_path, '2_data/04_small_data/fof_train_triton.csv'))
+    # images = [os.path.join(args.project_path, i) for i in df['triton_path'].tolist()]
+
+    df = pd.read_csv(os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_more_species.csv'))
+    images = [os.path.join(args.project_path, '2_data/03_data',  i) for i in df['partial path'].tolist()]
 
     nimages = len(images)
 
@@ -62,7 +66,7 @@ if __name__ == '__main__':
     for i in tqdm(range(nimages)):
         image_path = images[i]
         field_id = get_field_id([image_path])[0]
-        field_poly = vector_df.loc[vector_df.field_parc == field_id]['geometry']
+        field_poly = vector_df.loc[vector_df.lohkonro == field_id]['geometry']
 
         if not field_poly.is_valid.values:
             not_found.append(image_path)
