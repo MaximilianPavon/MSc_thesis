@@ -1,12 +1,14 @@
-from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset, get_device_id, get_OS
-from my_classes import MyCallbackDecoder_NDVI, MyCallbackCompOrigDecoded_NDVI
-import tensorflow as tf
-import datetime
 import argparse
-import sys
+import datetime
 import os
+import sys
+
 import numpy as np
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
+
+from my_classes import MyCallbackDecoder_NDVI, MyCallbackCompOrigDecoded_NDVI
+from my_functions import get_available_gpus, sampling, get_OS
 
 op_sys = get_OS()
 if op_sys == 'Darwin':
@@ -108,7 +110,6 @@ if __name__ == '__main__':
 
     # save some RAM
     del X, X_NDVI, y
-
 
     # folder extension for bookkeeping
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

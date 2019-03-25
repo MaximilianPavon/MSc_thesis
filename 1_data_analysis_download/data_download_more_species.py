@@ -107,7 +107,7 @@ def save_images_for_df(df, path_to_data, layers, max_cc_list, time_window, INSTA
                 if n_images < 1:
                     not_found_rows.append(row.tolist())
                 else:
-                    # remove additional images, is not required anymore since only the last images will be downloaded
+                    # removing additional images, is not required anymore since only the last images will be downloaded
                     # original naming would be: wms_TRUE-COLOR-S2-L1C_EPSG4326_46.16_-16.15_46.51_-15.58_2017-12-15T07-12-03_512X849.png
                     os.rename(path_to_data + wms_request.get_filename_list()[-1],
                               path_to_data + parcel_field + '_' + layer + file_extension)

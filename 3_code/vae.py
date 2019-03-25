@@ -1,10 +1,12 @@
-from my_functions import get_available_gpus, sampling, plot_latent_space, create_dataset, get_device_id, get_OS
-from my_classes import MyCallbackDecoder, MyCallbackCompOrigDecoded
-import tensorflow as tf
-import datetime
 import argparse
-import sys
+import datetime
 import os
+import sys
+
+import tensorflow as tf
+
+from my_classes import MyCallbackDecoder, MyCallbackCompOrigDecoded
+from my_functions import get_available_gpus, sampling, create_dataset, get_OS
 
 op_sys = get_OS()
 if op_sys == 'Darwin':
