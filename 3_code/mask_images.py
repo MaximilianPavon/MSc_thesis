@@ -66,6 +66,7 @@ if __name__ == '__main__':
     for i in tqdm(range(nimages)):
         image_path = images[i]
         field_id = get_field_id([image_path])[0]
+        # field_poly = vector_df.loc[vector_df.field_parc == field_id]['geometry']
         field_poly = vector_df.loc[vector_df.lohkonro == field_id]['geometry']
 
         if not field_poly.is_valid.values:
