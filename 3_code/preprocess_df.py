@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     # df = preprocess_df_Rehuohra(params['path_to_csv'], params['path_to_data'], params['colour_band'], params['file_extension'])
     df = preprocess_df_top4(params['path_to_csv'], params['path_to_data'], params['colour_band'],
-                                params['file_extension'])
+                                params['file_extension'], balanced=True)
 
     if not args.out_file:
         args.out_file = 'preprocessed.csv'

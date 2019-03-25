@@ -201,7 +201,7 @@ def preprocess_df_Rehuohra(path_to_csv, path_to_data, colour_band, file_extensio
     print('data frame created with a total number of fields: ', df.shape[0])
     return df
 
-def preprocess_df_top4(path_to_csv, path_to_data, colour_band, file_extension):
+def preprocess_df_top4(path_to_csv, path_to_data, colour_band, file_extension, balanced):
     # load data frame which contains field parcels and locations
     df = pd.read_csv(path_to_csv)
     print('successfully loaded file: ', path_to_csv)
@@ -305,11 +305,16 @@ def preprocess_df_top4(path_to_csv, path_to_data, colour_band, file_extension):
     i_losses, i_noloss6ks = [], []
     for plant in top_5_plants:
         df_plant = df[df.PLANT == plant]
-        i_losses += df_plant[(df_plant.category == 'full') | (df_plant.category == 'partial') | (
+        i_loss = df_plant[(df_plant.category == 'full') | (df_plant.category == 'partial') | (
                 df_plant.category == 'fullandpartial') | (df_plant.category_2 == 'anyloss')].index.values.tolist()
+        i_losses += i_loss
+        if balanced:
+            n_noloss = len(i_loss)
+        else:
+            n_noloss = 6000
         i_noloss6ks += df_plant[
                            (df_plant.category == 'noloss')
-                       ].sort_values(by=['Property area'], ascending=False).index[0:6000].values.tolist()
+                       ].sort_values(by=['Property area'], ascending=False).index[0:n_noloss].values.tolist()
 
     df = df[(df.index.isin(i_losses)) | df.index.isin(i_noloss6ks)]
 
