@@ -201,6 +201,7 @@ def preprocess_df_Rehuohra(path_to_csv, path_to_data, colour_band, file_extensio
     print('data frame created with a total number of fields: ', df.shape[0])
     return df
 
+
 def preprocess_df_top4(path_to_csv, path_to_data, colour_band, file_extension, balanced):
     # load data frame which contains field parcels and locations
     df = pd.read_csv(path_to_csv)
@@ -347,7 +348,6 @@ def preprocess_df_top4(path_to_csv, path_to_data, colour_band, file_extension, b
 
         print('data frame created with a total number of fields: ', df.shape[0])
     return df
-
 
 
 def split_dataframe(df, train_p, val_p, random_state=200):
@@ -534,12 +534,9 @@ def plot_latent_space(model, dataset, steps_per_epoch, batch_size, example_image
     plt.close('all')
 
 
-def _parse_function(example_proto):
+def _parse_function_2imgs(example_proto):
     feature_description = {
         'image': tf.FixedLenFeature([], tf.string),
-        'full_crop_loss_label': tf.FixedLenFeature([], tf.float32),
-        'partial_crop_loss_label': tf.FixedLenFeature([], tf.float32),
-        'image_path': tf.FixedLenFeature([], tf.string, default_value=''),
     }
 
     # First: parse the input tf.Example proto using the dictionary above.
@@ -549,24 +546,33 @@ def _parse_function(example_proto):
     image = tf.decode_raw(parsed_features['image'], tf.float32)  # tensor is still flattened
     image = tf.reshape(image, (512, 512, 13))
 
-    f_cl = parsed_features['full_crop_loss_label']
-    p_cl = parsed_features['partial_crop_loss_label']
-
-    im_path = parsed_features['image_path']
-    # im_path is still an encoded tf.Tensor and
-    # thus needs to be converted to numpy with .numpy() and then decoded .decode('utf-8')
-
     # Second: return a tuple of desired variables
-    # return image, image, f_cl, p_cl, im_path
     return image, image
 
 
-def _parse_function_1_output(example_proto):
+def _parse_function_1img(example_proto):
+    feature_description = {
+        'image': tf.FixedLenFeature([], tf.string),
+    }
+
+    # First: parse the input tf.Example proto using the dictionary above.
+    parsed_features = tf.parse_single_example(example_proto, feature_description)
+
+    # Decode saved image string into an array
+    image = tf.decode_raw(parsed_features['image'], tf.float32)  # tensor is still flattened
+    image = tf.reshape(image, (512, 512, 13))
+
+    # Second: return a tuple of desired variables
+    return image
+
+
+def _parse_function_pred(example_proto):
     feature_description = {
         'image': tf.FixedLenFeature([], tf.string),
         'full_crop_loss_label': tf.FixedLenFeature([], tf.float32),
         'partial_crop_loss_label': tf.FixedLenFeature([], tf.float32),
         'image_path': tf.FixedLenFeature([], tf.string, default_value=''),
+        'plant': tf.FixedLenFeature([], tf.string, default_value=''),
     }
 
     # First: parse the input tf.Example proto using the dictionary above.
@@ -580,16 +586,25 @@ def _parse_function_1_output(example_proto):
     p_cl = parsed_features['partial_crop_loss_label']
 
     im_path = parsed_features['image_path']
-    # im_path is still an encoded tf.Tensor and
-    # thus needs to be converted to numpy with .numpy() and then decoded .decode('utf-8')
+    plant_name = parsed_features['plant']
+    # im_path and plant_name are still an encoded tf.Tensor and
+    # thus needs to be converted to numpy with .numpy() and then decoded decode('utf-8')
 
     # Second: return a tuple of desired variables
-    # return image, image, f_cl, p_cl, im_path
-    return image
+    return (image), (f_cl, p_cl, plant_name)
 
 
-def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
-    """inspired from https://www.tensorflow.org/guide/performance/datasets#input_pipeline_structure"""
+def create_tfdataDataset(path, name, prediction, batch_size, prefetch_size, num_parallel_readers):
+    """
+    inspired from https://www.tensorflow.org/guide/performance/datasets#input_pipeline_structure
+    :param path: path to directory where name_[0-9]+.tfrecord
+    :param name: either train, val or test
+    :param prediction: boolean indicating usage for the prediciton model
+    :param batch_size:
+    :param prefetch_size:
+    :param num_parallel_readers:
+    :return:
+    """
 
     print(f'reading TFRecords file: {name}')
 
@@ -613,11 +628,14 @@ def create_dataset(path, name, batch_size, prefetch_size, num_parallel_readers):
     # dataset = dataset.shuffle(n_files)
 
     # Maps the parser on every filepath in the array. Set the number of parallel loaders here
-    if name == 'test':
-        dataset = dataset.map(_parse_function_1_output, num_parallel_calls=os.cpu_count() - 1)
+    if prediction:
+        dataset = dataset.map(_parse_function_pred, num_parallel_calls=os.cpu_count() - 1)
     else:
-        dataset = dataset.map(_parse_function, num_parallel_calls=os.cpu_count() - 1)
-    dataset = dataset.batch(batch_size=batch_size)
+        if name == 'test':
+            dataset = dataset.map(_parse_function_1img, num_parallel_calls=os.cpu_count() - 1)
+        else:
+            dataset = dataset.map(_parse_function_2imgs, num_parallel_calls=os.cpu_count() - 1)
+        dataset = dataset.batch(batch_size=batch_size)
 
     # replaces .map and .batch -- but DEPRECATED??
     # dataset = dataset.apply(tf.data.experimental.map_and_batch(

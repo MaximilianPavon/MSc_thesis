@@ -6,7 +6,7 @@ import sys
 import tensorflow as tf
 
 from my_classes import MyCallbackDecoder, MyCallbackCompOrigDecoded
-from my_functions import get_available_gpus, sampling, create_dataset, get_OS
+from my_functions import get_available_gpus, sampling, create_tfdataDataset, get_OS
 
 op_sys = get_OS()
 if op_sys == 'Darwin':
@@ -91,9 +91,9 @@ if __name__ == '__main__':
         batch_size = 16
 
     # create Dataset objects
-    ds_train, steps_per_epoch_train = create_dataset(path_to_data, 'train', batch_size, batch_size, n_parallel_readers)
-    ds_val, steps_per_epoch_val = create_dataset(path_to_data, 'val', batch_size, batch_size, n_parallel_readers)
-    ds_test, steps_per_epoch_test = create_dataset(path_to_data, 'test', batch_size, batch_size, n_parallel_readers)
+    ds_train, steps_per_epoch_train = create_tfdataDataset(path_to_data, 'train',False, batch_size, batch_size, n_parallel_readers)
+    ds_val, steps_per_epoch_val = create_tfdataDataset(path_to_data, 'val', False, batch_size, batch_size, n_parallel_readers)
+    ds_test, steps_per_epoch_test = create_tfdataDataset(path_to_data, 'test', False, batch_size, batch_size, n_parallel_readers)
 
     # folder extension for bookkeeping
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
