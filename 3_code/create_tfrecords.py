@@ -26,7 +26,7 @@ def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 
-def serialize_example(image_string, full_crop_loss_label, partial_crop_loss_label, path, plant_name):
+def serialize_example(image_string, full_crop_loss_value, partial_crop_loss_value, path, plant_name):
     """
     Creates a tf.Example message ready to be written to a file.
     """
@@ -36,10 +36,10 @@ def serialize_example(image_string, full_crop_loss_label, partial_crop_loss_labe
 
     feature = {
         'image': _bytes_feature(image_string),
-        'full_crop_loss_label': _float_feature(full_crop_loss_label),
-        'partial_crop_loss_label': _float_feature(partial_crop_loss_label),
+        'full_crop_loss_value': _float_feature(full_crop_loss_value),
+        'partial_crop_loss_value': _float_feature(partial_crop_loss_value),
         'image_path': _bytes_feature(path),
-        'plant':_bytes_feature(plant_name),
+        'plant': _bytes_feature(plant_name),
     }
 
     # Create a Features message using tf.train.Example.
@@ -90,8 +90,8 @@ if __name__ == '__main__':
 
         # List of image paths, np array of labels
         im_paths = [os.path.join('2_data/05_images_masked/', v) for v in data_frame['partial path'].tolist()]
-        f_cl_labels = data_frame['full crop loss scaled'].values
-        p_cl_labels = data_frame['partial crop loss scaled'].values
+        f_cl_values = data_frame['full crop loss scaled'].values
+        p_cl_values = data_frame['partial crop loss scaled'].values
         plant_names = data_frame['PLANT'].values
 
         # create writer object
@@ -104,14 +104,14 @@ if __name__ == '__main__':
         outF.close()
 
         # Loop over images and labels, wrap in TF Examples, write away to TFRecord file
-        for im_path, f_cl_label, p_cl_label, plant_name in tqdm(zip(im_paths, f_cl_labels, p_cl_labels, plant_names), total=n_files):
-            f_cl_label = f_cl_label.astype(np.float32)
+        for im_path, f_cl_value, p_cl_label, plant_name in tqdm(zip(im_paths, f_cl_values, p_cl_values, plant_names), total=n_files):
+            f_cl_value = f_cl_value.astype(np.float32)
             p_cl_label = p_cl_label.astype(np.float32)
 
             image = io.imread(os.path.join(args.project_path, im_path))
 
             # serialize the bytes representation of the image, the crop los values as well as the image path
-            example_serialized = serialize_example(image.tostring(), f_cl_label, p_cl_label, im_path.encode('utf-8'), plant_name.encode('utf-8'))
+            example_serialized = serialize_example(image.tostring(), f_cl_value, p_cl_label, im_path.encode('utf-8'), plant_name.encode('utf-8'))
 
             file_size = os.stat(tf_records_filename).st_size / (1024 ** 3)  # convert file size in bytes to GB
 

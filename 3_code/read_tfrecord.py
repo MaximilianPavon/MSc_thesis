@@ -11,8 +11,8 @@ tf.enable_eager_execution()
 def _parse_function(example_proto):
     feature_description = {
         'image': tf.FixedLenFeature([], tf.string),
-        'full_crop_loss_label': tf.FixedLenFeature([], tf.float32),
-        'partial_crop_loss_label': tf.FixedLenFeature([], tf.float32),
+        'full_crop_loss_value': tf.FixedLenFeature([], tf.float32),
+        'partial_crop_loss_value': tf.FixedLenFeature([], tf.float32),
         'image_path': tf.FixedLenFeature([], tf.string, default_value=''),
         'plant': tf.FixedLenFeature([], tf.string, default_value=''),
     }
@@ -24,8 +24,8 @@ def _parse_function(example_proto):
     image = tf.decode_raw(parsed_features['image'], tf.float32)  # tensor is still flattened
     image = tf.reshape(image, (512, 512, 13))
 
-    f_cl = parsed_features['full_crop_loss_label']
-    p_cl = parsed_features['partial_crop_loss_label']
+    f_cl = parsed_features['full_crop_loss_value']
+    p_cl = parsed_features['partial_crop_loss_value']
 
     im_path = parsed_features['image_path']
     plant_name = parsed_features['plant']
