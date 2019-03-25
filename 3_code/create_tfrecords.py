@@ -104,14 +104,14 @@ if __name__ == '__main__':
         outF.close()
 
         # Loop over images and labels, wrap in TF Examples, write away to TFRecord file
-        for im_path, f_cl_value, p_cl_label, plant_name in tqdm(zip(im_paths, f_cl_values, p_cl_values, plant_names), total=n_files):
+        for im_path, f_cl_value, p_cl_value, plant_name in tqdm(zip(im_paths, f_cl_values, p_cl_values, plant_names), total=n_files):
             f_cl_value = f_cl_value.astype(np.float32)
-            p_cl_label = p_cl_label.astype(np.float32)
+            p_cl_value = p_cl_value.astype(np.float32)
 
             image = io.imread(os.path.join(args.project_path, im_path))
 
             # serialize the bytes representation of the image, the crop los values as well as the image path
-            example_serialized = serialize_example(image.tostring(), f_cl_value, p_cl_label, im_path.encode('utf-8'), plant_name.encode('utf-8'))
+            example_serialized = serialize_example(image.tostring(), f_cl_value, p_cl_value, im_path.encode('utf-8'), plant_name.encode('utf-8'))
 
             file_size = os.stat(tf_records_filename).st_size / (1024 ** 3)  # convert file size in bytes to GB
 
