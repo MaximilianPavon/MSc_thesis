@@ -585,13 +585,53 @@ def _parse_function_pred(example_proto):
     f_cl = parsed_features['full_crop_loss_value']
     p_cl = parsed_features['partial_crop_loss_value']
 
+    # define 4D and 2D loss category as one-hot encoded array
+    loss_cat_4d_one_hot_tensor = tf.cond(
+        tf.logical_and(tf.math.greater(f_cl, 0), tf.math.equal(p_cl, 0)),  # only full loss
+        lambda: tf.one_hot(1 - 1, depth=4, dtype=tf.int8),
+        lambda: tf.cond(
+            tf.logical_and(tf.math.equal(f_cl, 0), tf.math.greater(p_cl, 0)),  # only partial loss
+            lambda: tf.one_hot(2 - 1, depth=4, dtype=tf.int8),
+            lambda: tf.cond(
+                tf.logical_and(tf.math.greater(f_cl, 0), tf.math.greater(p_cl, 0)),  # both full and partial loss
+                lambda: tf.one_hot(3 - 1, depth=4, dtype=tf.int8),
+                lambda: tf.one_hot(4 - 1, depth=4, dtype=tf.int8)  # no loss
+            )
+        )
+    )
+
+    loss_cat_2d_one_hot_tensor = tf.cond(
+        tf.logical_or(tf.math.greater(f_cl, 0), tf.math.greater(p_cl, 0)),  # some loss
+        lambda: tf.one_hot(1, depth=2, dtype=tf.int8),
+        lambda: tf.one_hot(0, depth=2, dtype=tf.int8),  # no loss
+    )
+
     im_path = parsed_features['image_path']
     plant_name = parsed_features['plant']
     # im_path and plant_name are still an encoded tf.Tensor and
     # thus needs to be converted to numpy with .numpy() and then decoded decode('utf-8')
 
+    # define plant type and parse as one-hot encoding
+    n_plants = 5
+    top_5_plants = ['Rehuohra', 'Kaura', 'Mallasohra', 'Kevätvehnä', 'Kevätrypsi']
+
+    plant_cat_one_hot = tf.cond(
+        tf.math.equal(plant_name, top_5_plants[0]), lambda: tf.one_hot(0, depth=n_plants, dtype=tf.int8),
+        lambda: tf.cond(
+            tf.math.equal(plant_name, top_5_plants[1]), lambda: tf.one_hot(1, depth=n_plants, dtype=tf.int8),
+            lambda: tf.cond(
+                tf.math.equal(plant_name, top_5_plants[2]), lambda: tf.one_hot(2, depth=n_plants, dtype=tf.int8),
+                lambda: tf.cond(
+                    tf.math.equal(plant_name, top_5_plants[3]),
+                    lambda: tf.one_hot(3, depth=n_plants, dtype=tf.int8),
+                    lambda: tf.one_hot(4, depth=n_plants, dtype=tf.int8)
+                )
+            )
+        )
+    )
+
     # Second: return a tuple of desired variables
-    return (image), (f_cl, p_cl, plant_name)
+    return (image), (f_cl, p_cl, loss_cat_4d_one_hot_tensor, loss_cat_2d_one_hot_tensor, plant_cat_one_hot)
 
 
 def create_tfdataDataset(path, name, prediction, batch_size, prefetch_size, num_parallel_readers):
