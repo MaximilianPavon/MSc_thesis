@@ -19,9 +19,9 @@ def get_field_id(file_paths):
 def get_output_path(input_path):
     split_path = input_path.split('/')
     if args.computer == 'workstation':
-        split_path[6] = '05_images_masked'
+        split_path[6] = '03_images_subset_masked'
     else:
-        split_path[5] = '05_images_masked'
+        split_path[5] = '03_images_subset_masked'
     output_path = '/'.join(split_path)
     os.makedirs('/'.join(split_path[0:-1]), exist_ok=True)
     return output_path
@@ -47,15 +47,15 @@ if __name__ == '__main__':
 
     # load shape file containing the field parcel geometries
     # shape_file = os.path.join(args.project_path, '2_data/04_small_data/rap_2015_rehuohra_shp/rap_2015_rehuohra.shp')
-    shape_file = os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.shp')
+    shape_file = os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/2015/rap_2015.shp')
     vector_df = gpd.read_file(shape_file)
 
     # get path to all the images
     # df = pd.read_csv(os.path.join(args.project_path, '2_data/04_small_data/fof_train_triton.csv'))
     # images = [os.path.join(args.project_path, i) for i in df['triton_path'].tolist()]
 
-    df = pd.read_csv(os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_more_species.csv'))
-    images = [os.path.join(args.project_path, '2_data/03_data',  i) for i in df['partial path'].tolist()]
+    df = pd.read_csv(os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/2015/preprocessed_more_species.csv'))
+    images = [os.path.join(args.project_path, '2_data/02_images_original',  i) for i in df['partial path'].tolist()]
 
     nimages = len(images)
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         # print(f'\n image loaded from {image_path} \n and written to {out_file}')
 
     np.savetxt(
-        os.path.join(args.project_path, '2_data/05_images_masked/', 'not_found.csv'),
+        os.path.join(args.project_path, '2_data/03_images_subset_masked/', 'not_found.csv'),
         np.array(not_found),
         fmt='%s'
     )

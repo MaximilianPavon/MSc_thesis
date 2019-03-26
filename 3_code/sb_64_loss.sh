@@ -6,7 +6,7 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --array=0-1
-#SBATCH --output=sl-64_loss-%A_%a.txt
+#SBATCH --output=./Max/sl-64_loss-%A_%a.txt
 
 # set -x # print all output to log file
 

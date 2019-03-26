@@ -51,8 +51,7 @@ def serialize_example(image_string, full_crop_loss_value, partial_crop_loss_valu
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
-    parser.add_argument("-d", "--data_path",
-                        help="Specify path, where the data is located. E.g. /tmp/$SLURM_JOB_ID/05_images_masked/ ")
+    parser.add_argument("-d", "--data_path", help="Specify path, where the data is located.")
     parser.add_argument("--file_limit", type=float, default=6.0 ,  help="Define maximum file size in GB of .tfrecords files. Default 6 GB")
     req_grp = parser.add_argument_group(title='required arguments')
     req_grp.add_argument("-c", "--computer", help="Specify computer: use \'triton\', \'mac\' or \'workstation\'.", required=True)
@@ -70,10 +69,10 @@ if __name__ == '__main__':
 
     # Parameters
     params = {
-        'path_to_csv': os.path.join(args.project_path,'2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/pp_balanced_top5.csv'),
+        'path_to_csv': os.path.join(args.project_path,'2_data/01_MAVI_unzipped_preprocessed/2015/pp_balanced_top5.csv'),
         'train_p': 0.8,
         'val_p': 0.1,
-        'path_to_data': args.data_path if args.data_path else os.path.join(args.project_path, '2_data/05_images_masked/'),
+        'path_to_data': args.data_path if args.data_path else os.path.join(args.project_path, '2_data/03_images_subset_masked/'),
     }
 
     df = pd.read_csv(params['path_to_csv'])
@@ -89,7 +88,7 @@ if __name__ == '__main__':
         print(f'creating TFRecords file: {f_name}')
 
         # List of image paths, np array of labels
-        im_paths = [os.path.join('2_data/05_images_masked/', v) for v in data_frame['partial path'].tolist()]
+        im_paths = [os.path.join('2_data/03_images_subset_masked/', v) for v in data_frame['partial path'].tolist()]
         f_cl_values = data_frame['full crop loss scaled'].values
         p_cl_values = data_frame['partial crop loss scaled'].values
         plant_names = data_frame['PLANT'].values

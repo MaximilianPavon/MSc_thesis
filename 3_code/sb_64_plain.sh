@@ -5,7 +5,7 @@
 #SBATCH --time=0-01:00:00
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
-#SBATCH --output=sl-64_plain-%j.txt
+#SBATCH --output=./Max/sl-64_plain-%j.txt
 
 
 # set -x # print all output to log file

@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
 #SBATCH --array=1-10
-#SBATCH --output=sl-latent_dim-%A_%a.txt
+#SBATCH --output=./Max/sl-latent_dim-%A_%a.txt
 
 # set -x # print all output to log file
 

@@ -6,7 +6,7 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --array=1-10
-#SBATCH --output=sl-64_latent_dim-%A_%a.txt
+#SBATCH --output=./Max/sl-64_latent_dim-%A_%a.txt
 
 # set -x # print all output to log file
 

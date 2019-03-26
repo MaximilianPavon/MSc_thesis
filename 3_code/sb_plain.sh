@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=5
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
-#SBATCH --output=sl-plain-%j.txt
+#SBATCH --output=./Max/sl-plain-%j.txt
 
 # set -x # print all output to log file
 

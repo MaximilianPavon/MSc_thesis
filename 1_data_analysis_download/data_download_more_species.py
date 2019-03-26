@@ -140,9 +140,9 @@ if __name__ == "__main__":
 
     # set global variables
     INSTANCE_ID = 'cb23d684-de6f-42e7-9010-57d488cccbc3'
-    path_to_csv = os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.csv')
-    layers = ['BANDS-S2-L1C']  # TODO: create RAW layer
-    output_path = os.path.join(args.project_path, '2_data/03_data/dataset9/')
+    path_to_csv = os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/2015/rap_2015.csv')
+    layers = ['BANDS-S2-L1C']
+    output_path = os.path.join(args.project_path, '2_data/02_images_original/dataset9/')
     time_window = ('2015-08-01', '2015-08-31')
     max_cc_list = [0.2]
 

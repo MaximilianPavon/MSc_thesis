@@ -70,8 +70,8 @@ if __name__ == '__main__':
 
     # Parameters
     path_to_csv = os.path.join(
-        args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/preprocessed_masked.csv')
-    path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/05_images_masked/')
+        args.project_path, '2_data/01_MAVI_unzipped_preprocessed/2015/preprocessed_masked.csv')
+    path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/03_images_subset_masked/')
     im_dim = (512, 512)
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         batch_size = 16
 
     # create Dataset objects
-    ds_train, steps_per_epoch_train = create_tfdataDataset(path_to_data, 'train',False, batch_size, batch_size, n_parallel_readers)
+    ds_train, steps_per_epoch_train = create_tfdataDataset(path_to_data, 'train', False, batch_size, batch_size, n_parallel_readers)
     ds_val, steps_per_epoch_val = create_tfdataDataset(path_to_data, 'val', False, batch_size, batch_size, n_parallel_readers)
     ds_test, steps_per_epoch_test = create_tfdataDataset(path_to_data, 'test', False, batch_size, batch_size, n_parallel_readers)
 

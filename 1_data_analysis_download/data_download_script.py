@@ -115,10 +115,10 @@ def save_images_for_df(df, path_to_data, layers, max_cc, time_window):
 if __name__ == '__main__':
 
     # set some global variables
-    INSTANCE_ID = '02a54b79-4c74-4960-a377-70c15518221b'
-    path_to_csv = '/Users/maximilianproll/Dropbox (Aalto)/2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.csv'
+    INSTANCE_ID = 'cb23d684-de6f-42e7-9010-57d488cccbc3'
+    path_to_csv = '/Users/maximilianproll/Dropbox (Aalto)/2_data/01_MAVI_unzipped_preprocessed/2015/rap_2015.csv'
     layers = ['NDVI', 'RAW']
-    path_to_data = '/Users/maximilianproll/Dropbox (Aalto)/2_data/02_data_incorrect_coord/'
+    path_to_data = '/Users/maximilianproll/Dropbox (Aalto)/2_data/02_images_original/'
     time_window = ('2015-08-01', '2015-08-31')
     max_cc = 0.3
 

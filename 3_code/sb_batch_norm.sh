@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
 #SBATCH --array=0-1
-#SBATCH --output=sl-batch_norm_fixed-%A_%a.txt
+#SBATCH --output=./Max/sl-batch_norm_fixed-%A_%a.txt
 
 # set -x # print all output to log file
 

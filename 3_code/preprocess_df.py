@@ -25,8 +25,8 @@ if __name__ == '__main__':
             sys.exit('Please specify the computer this programme runs on using \'triton\', \'mac\' or \'workstation\'')
 
     params = {
-        'path_to_csv': os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/MAVI2/2015/rap_2015.csv'),
-        'path_to_data': os.path.join(args.project_path, '2_data/03_data/'),
+        'path_to_csv': os.path.join(args.project_path, '2_data/01_MAVI_unzipped_preprocessed/2015/rap_2015.csv'),
+        'path_to_data': os.path.join(args.project_path, '2_data/02_images_original/'),
         'colour_band': 'BANDS-S2-L1C',
         'file_extension': '.tiff',
     }

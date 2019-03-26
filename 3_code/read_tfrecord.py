@@ -35,6 +35,7 @@ def _parse_function(example_proto):
     # Second: return a tuple of desired variables
     return image, image, f_cl, p_cl, im_path, plant_name
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -58,7 +59,7 @@ if __name__ == '__main__':
             sys.exit('Please specify the computer this programme runs on using \'triton\', \'mac\' or \'workstation\'')
 
     # Parameters
-    path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/05_images_masked/')
+    path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/03_images_subset_masked/')
 
     for f_name in ['train', 'val', 'test']:
 

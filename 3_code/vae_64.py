@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # gpu_device_ID = get_device_id(gpu_pci_bus_id)
 
     # Parameters
-    path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/data_for_comparision/')
+    path_to_data = args.data_path if args.data_path else os.path.join(args.project_path, '2_data/04_toydata_64x64/')
     im_dim = (64, 64)
     n_channels = 1
     input_shape = (im_dim[0], im_dim[1], n_channels)
