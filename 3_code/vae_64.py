@@ -105,7 +105,7 @@ if __name__ == '__main__':
         del ndvi_i, check
     X_NDVI = np.array(X_NDVI)
 
-    X_train, X_test, y_train, y_test = train_test_split(X_NDVI, y, test_size = 0.20, random_state = 42)
+    X_train, X_test, y_train, y_test = train_test_split(X_NDVI, y, test_size=0.20, random_state=42)
     X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.50, random_state=42)
 
     # save some RAM
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     # folder extension for bookkeeping
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     hparam_str = '64x64_'
-    hparam_str += args.param_alternation + '-' if args.param_alternation else ''
+    hparam_str += args.param_alternation + '_' if args.param_alternation else ''
     hparam_str += str(latent_dim) + 'z_'
     hparam_str += str(n_Conv) + 'Conv_'
     hparam_str += str(int(batch_normalization)) + 'BN_'

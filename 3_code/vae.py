@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
     # folder extension for bookkeeping
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    hparam_str = args.param_alternation + '-' if args.param_alternation else ''
+    hparam_str = args.param_alternation + '_' if args.param_alternation else ''
     hparam_str += str(latent_dim) + 'z_'
     hparam_str += str(n_Conv) + 'Conv_'
     hparam_str += str(int(batch_normalization)) + 'BN_'
