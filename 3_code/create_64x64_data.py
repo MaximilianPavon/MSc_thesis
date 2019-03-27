@@ -76,6 +76,6 @@ if __name__ == '__main__':
     print()
 
     np.save(os.path.join(args.project_path, '2_data/04_toydata_64x64', 'X64_top5.npy'), X)
-    np.save(os.path.join(args.project_path, '2_data/04_toydata_64x64', 'Y64_top5.npy'), y)
+    np.save(os.path.join(args.project_path, '2_data/04_toydata_64x64', 'Y64_top5.npy'), y.T)
     np.savetxt(os.path.join(args.project_path, '2_data/04_toydata_64x64', 'ID64_top5.txt'), IDs, fmt='%s')
     print()
