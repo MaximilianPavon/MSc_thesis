@@ -1,17 +1,20 @@
-import sys, os, io, platform
+import io
+import os
+import platform
+import sys
 from subprocess import Popen, PIPE
 
-import pandas as pd
-import numpy as np
-import tensorflow as tf
-from tensorflow.python.client import device_lib
-
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox, TextArea
-from skimage import io as ski_io
-from skimage import exposure
 import GPUtil
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox, TextArea
+from skimage import exposure
+from skimage import io as ski_io
+from sklearn.metrics import confusion_matrix
+from tensorflow.python.client import device_lib
+from tqdm import tqdm
 
 
 def get_OS():
@@ -675,7 +678,7 @@ def create_tfdataDataset(path, name, prediction, batch_size, prefetch_size, num_
             dataset = dataset.map(_parse_function_1img, num_parallel_calls=os.cpu_count() - 1)
         else:
             dataset = dataset.map(_parse_function_2imgs, num_parallel_calls=os.cpu_count() - 1)
-        dataset = dataset.batch(batch_size=batch_size)
+    dataset = dataset.batch(batch_size=batch_size)
 
     # replaces .map and .batch -- but DEPRECATED??
     # dataset = dataset.apply(tf.data.experimental.map_and_batch(
@@ -687,3 +690,79 @@ def create_tfdataDataset(path, name, prediction, batch_size, prefetch_size, num_
     dataset = dataset.repeat()
 
     return dataset, steps_per_epoch
+
+
+def plot_confusion_matrix(y_true, y_pred, class_names, path, file_name_prefix='', normalize=False, title=None, cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    if not title:
+        if normalize:
+            title = 'Normalized confusion matrix'
+        else:
+            title = 'Confusion matrix, without normalization'
+
+    # Compute confusion matrix
+    cm = confusion_matrix(y_true, y_pred)
+    # Only use the labels that appear in the data
+    # class_names = class_names[unique_labels(y_true, y_pred)]
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
+    ax.figure.colorbar(im, ax=ax)
+    # We want to show all ticks...
+    ax.set(xticks=np.arange(cm.shape[1]),
+           yticks=np.arange(cm.shape[0]),
+           # ... and label them with the respective list entries
+           xticklabels=class_names, yticklabels=class_names,
+           title=title,
+           ylabel='True label',
+           xlabel='Predicted label')
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, format(cm[i, j], fmt),
+                    ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+    fig.tight_layout()
+    if normalize:
+        plt.savefig(os.path.join(path, file_name_prefix + 'confusion_matrix_norm.png'), dpi=300, bbox_inches='tight')
+    else:
+        plt.savefig(os.path.join(path, file_name_prefix + 'confusion_matrix.png'), dpi=300, bbox_inches='tight')
+
+    plt.close('all')
+
+    return
+
+
+def f1(y_true, y_pred):
+    """define f1 score as custom metric for categorical binary data"""
+    y_true = tf.argmax(y_true, axis=1)  # convert probabilities to category
+    y_pred = tf.argmax(y_pred, axis=1)  # convert probabilities to category
+    y_pred = tf.keras.backend.round(y_pred)
+    tp = tf.keras.backend.sum(tf.keras.backend.cast(y_true * y_pred, 'float'), axis=0)
+    # tn = K.sum(K.cast((1-y_true)*(1-y_pred), 'float'), axis=0)
+    fp = tf.keras.backend.sum(tf.keras.backend.cast((1 - y_true) * y_pred, 'float'), axis=0)
+    fn = tf.keras.backend.sum(tf.keras.backend.cast(y_true * (1 - y_pred), 'float'), axis=0)
+
+    p = tp / (tp + fp + tf.keras.backend.epsilon())
+    r = tp / (tp + fn + tf.keras.backend.epsilon())
+
+    f1_score = 2 * p * r / (p + r + tf.keras.backend.epsilon())
+    f1_score = tf.where(tf.is_nan(f1_score), tf.zeros_like(f1_score), f1_score)
+    return tf.keras.backend.mean(f1_score)
