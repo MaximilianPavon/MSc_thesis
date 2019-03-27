@@ -161,10 +161,10 @@ if __name__ == '__main__':
     print('start the training')
     pred_model.fit(
         ds_train,
-        steps_per_epoch=steps_per_epoch_train if not args.debug else 1,
-        # validation_data=ds_val,
-        # validation_steps=steps_per_epoch_val if not args.debug else 3,
-        epochs=epochs if not args.debug else 1,
+        steps_per_epoch=steps_per_epoch_train if not args.debug else 3,
+        validation_data=ds_val,
+        validation_steps=steps_per_epoch_val if not args.debug else 3,
+        epochs=epochs if not args.debug else 3,
         callbacks=callbacks_list,
         workers=os.cpu_count(),
         use_multiprocessing=True,
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     print('evaluate the model')
     scores = pred_model.evaluate(
         x=ds_test,
-        steps=steps_per_epoch_test,
+        steps=steps_per_epoch_test if not args.debug else 3,
         workers=os.cpu_count(),
         use_multiprocessing=True,
     )
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     print('prediction')
     y_pred_full_cl, y_pred_partial_cl, y_pred_loss_cat_4d_prob, y_pred_loss_cat_2d_prob, y_pred_plant_cat_prob = pred_model.predict(
         x=ds_test,
-        steps=steps_per_epoch_test,
+        steps=steps_per_epoch_test if not args.debug else 3,
         workers=os.cpu_count(),
         use_multiprocessing=True,
     )
