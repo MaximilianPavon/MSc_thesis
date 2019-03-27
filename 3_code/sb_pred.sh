@@ -2,7 +2,7 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-01:00:00
+#SBATCH --time=0-02:00:00
 #SBATCH --mem=65G
 #SBATCH --cpus-per-task=5
 #SBATCH --gres=gpu:1
@@ -25,4 +25,4 @@ source activate edward
 which python
 
 # run python script with temporary directory as input for the images
-srun python 3_code/prediction.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -m 4_runs/logging/models/512x512_best_conv_1024z_3Conv_0BN_70ep_MSE_2019-03-12_14-21-21 --debug
+srun python 3_code/prediction.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -m 4_runs/logging/models/512x512_best_conv_1024z_3Conv_0BN_70ep_MSE_2019-03-12_14-21-21

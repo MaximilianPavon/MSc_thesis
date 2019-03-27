@@ -61,7 +61,7 @@ if __name__ == '__main__':
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
     latent_dim = int(args.model.split('/')[-1].split('z')[0].split('_')[-1])
-    epochs = args.epochs if args.epochs else 100
+    epochs = args.epochs if args.epochs else 200
     batch_normalization = args.batch_normalization
     use_bias = not batch_normalization  # if batch_normalization is used, a bias term can be omitted
     batch_size = 16
