@@ -89,8 +89,8 @@ if __name__ == '__main__':
 
         # List of image paths, np array of labels
         im_paths = [os.path.join('2_data/03_images_subset_masked/', v) for v in data_frame['partial path'].tolist()]
-        f_cl_values = data_frame['full crop loss scaled'].values
-        p_cl_values = data_frame['partial crop loss scaled'].values
+        full_cl_values = np.clip(df['full crop loss scaled'].values, 0, 1)
+        partial_cl_values = np.clip(df['partial crop loss scaled'].values, 0, 1)
         plant_names = data_frame['PLANT'].values
 
         # create writer object
@@ -103,14 +103,14 @@ if __name__ == '__main__':
         outF.close()
 
         # Loop over images and labels, wrap in TF Examples, write away to TFRecord file
-        for im_path, f_cl_value, p_cl_value, plant_name in tqdm(zip(im_paths, f_cl_values, p_cl_values, plant_names), total=n_files):
-            f_cl_value = f_cl_value.astype(np.float32)
-            p_cl_value = p_cl_value.astype(np.float32)
+        for im_path, full_cl, partial_cl, plant_name in tqdm(zip(im_paths, full_cl_values, partial_cl_values, plant_names), total=n_files):
+            full_cl = full_cl.astype(np.float32)
+            partial_cl = partial_cl.astype(np.float32)
 
             image = io.imread(os.path.join(args.project_path, im_path))
 
             # serialize the bytes representation of the image, the crop los values as well as the image path
-            example_serialized = serialize_example(image.tostring(), f_cl_value, p_cl_value, im_path.encode('utf-8'), plant_name.encode('utf-8'))
+            example_serialized = serialize_example(image.tostring(), full_cl, partial_cl, im_path.encode('utf-8'), plant_name.encode('utf-8'))
 
             file_size = os.stat(tf_records_filename).st_size / (1024 ** 3)  # convert file size in bytes to GB
 

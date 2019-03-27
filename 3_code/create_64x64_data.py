@@ -49,8 +49,8 @@ if __name__ == '__main__':
     # List of image paths, np array of labels
     IDs = df['field parcel'].values
     im_paths = [os.path.join(path_to_data, v) for v in df['partial path'].tolist()]
-    full_cl_values = df['full crop loss scaled'].values
-    partial_cl_values = df['partial crop loss scaled'].values
+    full_cl_values = np.clip(df['full crop loss scaled'].values, 0, 1)
+    partial_cl_values = np.clip(df['partial crop loss scaled'].values, 0, 1)
     loss_categories_4d = df['loss_cat_4d'].values
     loss_categories_2d = df['loss_cat_2d'].values
     plant_categories = df['plant_cat'].values
