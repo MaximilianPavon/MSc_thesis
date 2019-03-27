@@ -25,11 +25,7 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--project_path", help="Specify project path, where the project is located.")
     parser.add_argument("-d", "--data_path",
                         help="Specify path, where the data is located. E.g. /tmp/$SLURM_JOB_ID/05_images_masked/ ")
-    parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)."
-                                                "Path until parent directory: e.g \'4_runs/logging/weights/")
-    parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
     parser.add_argument('-e', "--epochs", type=int, help="Specify the number of training epochs")
-    # parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
     parser.add_argument("--batch_normalization", action='store_true', default=False,
                         help="Specify if batch normalizations shall be applied. Default False.")
     parser.add_argument("--param_alternation", type=str,
@@ -55,14 +51,6 @@ if __name__ == '__main__':
             args.model = '/'.join(args.model.split('/')[1:])
 
         args.model = os.path.join(args.project_path, args.model)
-
-    if args.weights and not args.project_path in args.weights:
-
-        if '..' in args.weights:
-            # remove leading '..'
-            args.weights = '/'.join(args.weights.split('/')[1:])
-
-        args.weights = os.path.join(args.project_path, args.weights)
 
     print('available GPUs:')
     get_available_gpus()

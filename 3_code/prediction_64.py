@@ -28,7 +28,6 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--data_path",
                         help="Specify path, where the data is located. E.g. /tmp/$SLURM_JOB_ID/05_images_masked/ ")
     parser.add_argument('-e', "--epochs", type=int, help="Specify the number of training epochs")
-    # parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
     parser.add_argument("--batch_normalization", action='store_true', default=False,
                         help="Specify if batch normalizations shall be applied. Default False.")
     parser.add_argument("--param_alternation", type=str,

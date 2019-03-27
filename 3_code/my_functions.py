@@ -640,7 +640,7 @@ def _parse_function_pred(example_proto):
 def create_tfdataDataset(path, name, prediction, batch_size, prefetch_size, num_parallel_readers):
     """
     inspired from https://www.tensorflow.org/guide/performance/datasets#input_pipeline_structure
-    :param path: path to directory where name_[0-9]+.tfrecord
+    :param path: path to directory where name_[0-9]+.tfrecord are located
     :param name: either train, val or test
     :param prediction: boolean indicating usage for the prediciton model
     :param batch_size:
