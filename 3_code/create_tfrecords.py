@@ -89,8 +89,8 @@ if __name__ == '__main__':
 
         # List of image paths, np array of labels
         im_paths = [os.path.join('2_data/03_images_subset_masked/', v) for v in data_frame['partial path'].tolist()]
-        full_cl_values = np.clip(df['full crop loss scaled'].values, 0, 1)
-        partial_cl_values = np.clip(df['partial crop loss scaled'].values, 0, 1)
+        full_cl_values = np.clip(data_frame['full crop loss scaled'].values, 0, 1)
+        partial_cl_values = np.clip(data_frame['partial crop loss scaled'].values, 0, 1)
         plant_names = data_frame['PLANT'].values
 
         # create writer object
