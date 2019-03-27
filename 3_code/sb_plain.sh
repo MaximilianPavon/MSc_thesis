@@ -14,8 +14,8 @@
 # copy tfrecords files
 cd /scratch/cs/ai_croppro/
 mkdir /tmp/$SLURM_JOB_ID                                    # get a directory where you will send all output from your program
-cp 2_data/05_images_masked/*.tfrecord /tmp/$SLURM_JOB_ID    # copy tfrecords files to temporary directory
-cp 2_data/05_images_masked/*.txt /tmp/$SLURM_JOB_ID         # copy other necessary files to temporary directory
+cp 2_data/03_images_subset_masked/*.tfrecord /tmp/$SLURM_JOB_ID    # copy tfrecords files to temporary directory
+cp 2_data/03_images_subset_masked/*.txt /tmp/$SLURM_JOB_ID         # copy other necessary files to temporary directory
 
 # load environment
 module purge

@@ -21,8 +21,8 @@ if [[ ${response} -eq 0 ]];then
     # if the creation of the directory was succesfull:
     # copy files to temporary directory
     echo 'copying files...'
-    cp 2_data/05_images_masked/*.tfrecord /tmp/$SLURM_ARRAY_JOB_ID    # copy tfrecords files to temporary directory
-    cp 2_data/05_images_masked/*.txt /tmp/$SLURM_ARRAY_JOB_ID         # copy other necessary files to temporary directory
+    cp 2_data/03_images_subset_masked/*.tfrecord /tmp/$SLURM_ARRAY_JOB_ID    # copy tfrecords files to temporary directory
+    cp 2_data/03_images_subset_masked/*.txt /tmp/$SLURM_ARRAY_JOB_ID         # copy other necessary files to temporary directory
 else
     echo 'waiting 240s...'
     # if the creation of the directory was NOT succesfull (because it already exists):
