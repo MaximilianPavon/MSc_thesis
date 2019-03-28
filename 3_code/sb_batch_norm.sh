@@ -2,7 +2,7 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-04:00:00
+#SBATCH --time=0-07:00:00
 #SBATCH --mem=65G
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
@@ -44,7 +44,7 @@ which python
 prefix=batch_norm
 
 if [ $SLURM_ARRAY_TASK_ID -eq 0 ];then
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 1024 --n_conv 3 --mse --param_alternation ${prefix} -e 50
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 1024 --n_conv 3 --mse --param_alternation ${prefix} -e 40
 else
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 1024 --n_conv 3 --mse --param_alternation ${prefix} -e 50 --batch_normalization
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 1024 --n_conv 3 --mse --param_alternation ${prefix} -e 40 --batch_normalization
 fi

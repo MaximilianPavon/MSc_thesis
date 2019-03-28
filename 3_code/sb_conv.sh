@@ -2,7 +2,7 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-04:00:00
+#SBATCH --time=0-09:00:00
 #SBATCH --mem=65G
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
