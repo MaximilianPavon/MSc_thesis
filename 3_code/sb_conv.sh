@@ -2,7 +2,7 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-07:00:00
+#SBATCH --time=0-04:00:00
 #SBATCH --mem=65G
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
@@ -42,4 +42,4 @@ source activate edward
 which python
 
 # run python script with temporary directory as input for the images
-srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ --mse -z 1024 -e 70 --param_alternation conv --n_conv $SLURM_ARRAY_TASK_ID
+srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ --mse -z 1024 -e 50 --param_alternation conv --n_conv $SLURM_ARRAY_TASK_ID

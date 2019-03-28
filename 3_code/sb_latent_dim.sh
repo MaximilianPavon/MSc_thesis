@@ -2,7 +2,7 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-07:00:00
+#SBATCH --time=0-04:00:00
 #SBATCH --mem=65G
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
@@ -46,4 +46,4 @@ z=$((2**$SLURM_ARRAY_TASK_ID))
 echo "latent dim: $z"
 
 # run python script with temporary directory as input for the images
-srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ --mse -e 70 --n_conv 3 -z $z --param_alternation latent_dim
+srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ --mse -e 50 --n_conv 3 -z $z --param_alternation latent_dim
