@@ -75,10 +75,10 @@ if __name__ == '__main__':
     im_dim = (512, 512)
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
-    n_Conv = args.n_conv if args.n_conv else 6
+    n_Conv = args.n_conv if args.n_conv else 3
     kernel_size = 3
     filters = 20
-    latent_dim = args.latent_dim if args.latent_dim else 64
+    latent_dim = args.latent_dim if args.latent_dim else 1024
     epochs = args.epochs if args.epochs else 100
     batch_normalization = args.batch_normalization
     loss_fct = 'MSE' if args.mse else 'X-Ent'

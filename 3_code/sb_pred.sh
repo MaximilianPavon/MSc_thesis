@@ -4,18 +4,23 @@
 # -----------------------
 #SBATCH --time=0-02:00:00
 #SBATCH --mem=65G
-#SBATCH --cpus-per-task=5
+#SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
 #SBATCH --output=./Max/sl-predict-%j.txt
 
 # set -x # print all output to log file
 
-# copy tfrecords files
 cd /scratch/cs/ai_croppro/
+
+# copy tfrecords files
+start=`date +%s`
 mkdir /tmp/$SLURM_JOB_ID                                    # get a directory where you will send all output from your program
 cp 2_data/03_images_subset_masked/*.tfrecord /tmp/$SLURM_JOB_ID    # copy tfrecords files to temporary directory
 cp 2_data/03_images_subset_masked/*.txt /tmp/$SLURM_JOB_ID         # copy other necessary files to temporary directory
+end=`date +%s`
+runtime=$(($end-$start))
+echo "Copying took $runtime seconds"
 
 # load environment
 module purge

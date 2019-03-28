@@ -2,9 +2,9 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-04:00:00
+#SBATCH --time=0-07:00:00
 #SBATCH --mem=65G
-#SBATCH --cpus-per-task=5
+#SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
 #SBATCH --array=0-1
@@ -21,13 +21,17 @@ if [[ ${response} -eq 0 ]];then
     # if the creation of the directory was succesfull:
     # copy files to temporary directory
     echo 'copying files...'
+    start=`date +%s`
     cp 2_data/03_images_subset_masked/*.tfrecord /tmp/$SLURM_ARRAY_JOB_ID    # copy tfrecords files to temporary directory
     cp 2_data/03_images_subset_masked/*.txt /tmp/$SLURM_ARRAY_JOB_ID         # copy other necessary files to temporary directory
+    end=`date +%s`
+    runtime=$(($end-$start))
+    echo "Copying took $runtime seconds"
 else
-    echo 'waiting 240s...'
+    echo 'waiting 600s...'
     # if the creation of the directory was NOT succesfull (because it already exists):
     # wait until the data is copied to temporary directory
-    sleep 240
+    sleep 600s
 fi
 
 # load environment
@@ -38,7 +42,7 @@ source activate edward
 which python
 
 if [ $SLURM_ARRAY_TASK_ID -eq 0 ];then
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 -e 70 --param_alternation loss
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 1024 -e 70 --n_conv 3 --param_alternation loss
 else
-    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 128 -e 70 --param_alternation loss --mse
+    srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_ARRAY_JOB_ID/ -z 1024 -e 70 --n_conv 3 --param_alternation loss --mse
 fi
