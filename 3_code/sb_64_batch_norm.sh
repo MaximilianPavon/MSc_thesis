@@ -19,7 +19,7 @@ source activate edward_cpu
 
 which python
 
-prefix=batch_norm_fixed
+prefix=batch_norm
 
 if [ $SLURM_ARRAY_TASK_ID -eq 0 ];then
     srun python 3_code/vae_64.py -c triton -z 1024 --mse -e 100 --n_conv 3 --param_alternation ${prefix}

@@ -4,6 +4,7 @@ import os
 import sys
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
@@ -87,29 +88,49 @@ if __name__ == '__main__':
     batch_size = 16
 
     # load np arrays
-    X = np.load(os.path.join(path_to_data, 'X64.npy'))
-    y = np.load(os.path.join(path_to_data, 'Y64.npy'))
+    X = np.load(os.path.join(path_to_data, 'X64_top5.npy'))
+    y = np.load(os.path.join(path_to_data, 'Y64_top5.npy'))
 
-    # compute NDVI value for X from the 13 channels
-    # NDVI = = (B08 - B04) / (B08 + B04)
-    # raw channels are: [B01,B02,B03,B04,B05,B06,B07,B08,B8A,B09,B10,B11,B12]
+    index_full_cl = 0
+    index_partial_cl = 1
+    index_loss_cat_4d = 2
+    index_loss_cat_2d = 3
+    index_plant_cat = 4
 
-    X_NDVI = []
-    for x_i in X:
-        # ndvi_i = np.empty(input_shape, dtype=np.float32)
-        # check = np.logical_and(np.logical_or(x_i[7] > 0, x_i[3] > 0), x_i[7] - x_i[3] > 0)
-        check = x_i[7] - x_i[3]!= 0
-        ndvi_i = np.where(check, (x_i[7] - x_i[3]) / (x_i[7] - x_i[3]), 0)
-        ndvi_i = np.reshape(ndvi_i, input_shape)
-        X_NDVI.append(ndvi_i)
-        del ndvi_i, check
-    X_NDVI = np.array(X_NDVI)
+    full_cl = np.reshape(y[:, index_full_cl], (len(y), 1))
+    partial_cl = np.reshape(y[:, index_partial_cl], (len(y), 1))
 
-    X_train, X_test, y_train, y_test = train_test_split(X_NDVI, y, test_size=0.20, random_state=42)
+    # convert categorical data to one hot encoding
+    df = pd.DataFrame(y[:, index_loss_cat_4d])
+    df[0] = df[0].astype(int).astype('category')
+    loss_cat_4d_one_hot = pd.get_dummies(df[0]).values
+
+    df = pd.DataFrame(y[:, index_loss_cat_2d])
+    df[0] = df[0].astype(int).astype('category')
+    loss_cat_2d_one_hot = pd.get_dummies(df[0]).values
+
+    df = pd.DataFrame(y[:, index_plant_cat])
+    df[0] = df[0].astype(int).astype('category')
+    plant_cat_one_hot = pd.get_dummies(df[0]).values
+
+    n_loss_cat_4d = loss_cat_4d_one_hot.shape[-1]
+    n_loss_cat_2d = loss_cat_2d_one_hot.shape[-1]
+    n_plant_cat = plant_cat_one_hot.shape[-1]
+
+    index_loss_cat_4d_one_hot = np.arange(index_loss_cat_4d, index_loss_cat_4d + n_loss_cat_4d)
+    index_loss_cat_2d_one_hot = np.arange(max(index_loss_cat_4d_one_hot) + 1,
+                                          max(index_loss_cat_4d_one_hot) + 1 + n_loss_cat_2d)
+    index_plant_cat_one_hot = np.arange(max(index_loss_cat_2d_one_hot) + 1,
+                                        max(index_loss_cat_2d_one_hot) + 1 + n_plant_cat)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        np.concatenate((full_cl, partial_cl, loss_cat_4d_one_hot, loss_cat_2d_one_hot, plant_cat_one_hot), 1),
+        test_size=0.20, random_state=42)
     X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.50, random_state=42)
 
     # save some RAM
-    del X, X_NDVI, y
+    del X, y, df, loss_cat_4d_one_hot, loss_cat_2d_one_hot, plant_cat_one_hot, full_cl, partial_cl
 
     # folder extension for bookkeeping
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
