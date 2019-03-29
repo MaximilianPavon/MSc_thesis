@@ -63,7 +63,7 @@ if __name__ == '__main__':
     epochs = args.epochs if args.epochs else 200
     batch_normalization = args.batch_normalization
     use_bias = not batch_normalization  # if batch_normalization is used, a bias term can be omitted
-    batch_size = 16
+    batch_size = 64
     n_parallel_readers = 4
 
     n_loss_cat_4d = 4

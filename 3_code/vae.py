@@ -86,7 +86,7 @@ if __name__ == '__main__':
     use_bias = not batch_normalization  # if batch_normalization is used, a bias term can be omitted
 
     if not op_sys == 'Darwin':
-        batch_size = 32
+        batch_size = 64
     else:
         batch_size = 16
 
@@ -261,11 +261,11 @@ if __name__ == '__main__':
 
         mycb_comparison = MyCallbackCompOrigDecoded(
             log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'comparison'),
-            dataset=ds_test, num_examples=10, log_freq=1)
+            dataset=ds_test, num_examples=10, log_freq=5)
 
         mycb_decoder = MyCallbackDecoder(
             decoder, log_dir=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'decoder'),
-            num_examples_to_generate=16, log_freq=1)
+            num_examples_to_generate=16, log_freq=5)
 
         tbCallBack = tf.keras.callbacks.TensorBoard(
             log_dir=os.path.join(args.project_path, '4_runs/logging/TBlogs/' + hparam_str),
