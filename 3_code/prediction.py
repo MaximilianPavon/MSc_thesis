@@ -167,8 +167,6 @@ if __name__ == '__main__':
         validation_steps=steps_per_epoch_val if not args.debug else 3,
         epochs=epochs if not args.debug else 3,
         callbacks=callbacks_list,
-        workers=os.cpu_count(),
-        use_multiprocessing=True,
     )
     print('training done')
 
@@ -186,8 +184,6 @@ if __name__ == '__main__':
     scores = pred_model.evaluate(
         x=ds_test,
         steps=steps_per_epoch_test if not args.debug else 3,
-        workers=os.cpu_count(),
-        use_multiprocessing=True,
     )
 
     for score, metric in zip(np.round(scores, 3), pred_model.metrics_names):
