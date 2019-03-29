@@ -60,7 +60,6 @@ if __name__ == '__main__':
     im_dim = (512, 512)
     n_channels = 13
     input_shape = (im_dim[0], im_dim[1], n_channels)
-    latent_dim = int(args.model.split('/')[-1].split('z')[0].split('_')[-1])
     epochs = args.epochs if args.epochs else 200
     batch_normalization = args.batch_normalization
     use_bias = not batch_normalization  # if batch_normalization is used, a bias term can be omitted
@@ -76,6 +75,11 @@ if __name__ == '__main__':
     ds_val, steps_per_epoch_val = create_tfdataDataset(path_to_data, 'val', True, batch_size, batch_size, n_parallel_readers)
     ds_test, steps_per_epoch_test = create_tfdataDataset(path_to_data, 'test', True, batch_size, batch_size, n_parallel_readers)
 
+    print(f'load trained encoder from {args.model}')
+    encoder = tf.keras.models.load_model(os.path.join(args.model, 'encoder.hdf5'))
+    encoder.trainable = False
+    latent_dim = encoder.output[0].shape.dims[1].value
+
     # folder extension for bookkeeping
     datetime_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     hparam_str = 'prediction_512x512_'
@@ -87,10 +91,7 @@ if __name__ == '__main__':
 
     os.makedirs(os.path.join(args.project_path, '4_runs/plots/', hparam_str), exist_ok=True)
 
-    print(f'load trained encoder from {args.model}')
-    encoder = tf.keras.models.load_model(os.path.join(args.model, 'encoder.hdf5'))
-    encoder.trainable = False
-
+    # build the computational graph
     encoder_input = tf.keras.layers.Input(shape=input_shape, name='encoder_input')
     z = encoder(encoder_input)[2]
 
