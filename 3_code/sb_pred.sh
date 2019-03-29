@@ -30,4 +30,4 @@ source activate edward
 which python
 
 # run python script with temporary directory as input for the images
-srun python 3_code/prediction.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -m 4_runs/logging/models/512x512_best_conv_1024z_3Conv_0BN_70ep_MSE_2019-03-12_14-21-21
+srun python 3_code/prediction.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -m 4_runs/logging/models/best_512x512_long_1024z_3Conv_0BN_80ep_MSE_2019-03-28_19-44-06
