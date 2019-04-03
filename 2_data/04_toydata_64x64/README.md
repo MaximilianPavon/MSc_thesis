@@ -11,8 +11,8 @@ The three files X64.npy, Y64.npy and ID64.txt together form the dataset used for
 		- 2: both full and partial loss (Y[:, 0] > 0 & Y[:, 1] > 0)
 		- 3: no loss (Y[:, 0] == 0 & Y[:, 1] == 0)
 	- Y[:, 3] is a different 2-class labelling of data (for experimental purpose) based on the 4-class labels above
-		- 0: no loss (formed by combining class labels 0, 1 and 2 in Y[:, 2])
-		- 1: some loss (formed by class label 3 in Y[:, 2])
+		- 0: no loss (formed by class label 3 in Y[:, 2])
+		- 1: some loss (formed by combining class labels 0, 1 and 2 in Y[:, 2])
 	- Y[:, 4] is the plant category. 
 		- 0: Rehuohra
 		- 1: Kaura
@@ -23,3 +23,6 @@ The three files X64.npy, Y64.npy and ID64.txt together form the dataset used for
 - ID64.txt consists of the field parcel name/ids
 
 NOTE: The order of rows of each of the three files are in corresponding order. That is, for a given i, the field parcel ID[i]'s attributes are in Y[i] and its image in X[i].
+
+- Finally, the folder mavi_shape_files contains the shape files of the fields. The ordering of recorders in the shape files may not match the files above.
+
