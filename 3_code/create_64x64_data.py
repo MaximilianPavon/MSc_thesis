@@ -65,8 +65,8 @@ if __name__ == '__main__':
         # NDVI = = (B08 - B04) / (B08 + B04)
         # raw channels are: [B01,B02,B03,B04,B05,B06,B07,B08,B8A,B09,B10,B11,B12]
 
-        check = image[:, :, 7] - image[:, :, 3] != 0
-        image_ndvi = np.where(check, (image[:, :, 7] - image[:, :, 3]) / (image[:, :, 7] - image[:, :, 3]), 0)
+        check = image[:, :, 7] + image[:, :, 3] != 0
+        image_ndvi = np.where(check, (image[:, :, 7] - image[:, :, 3]) / (image[:, :, 7] + image[:, :, 3]), 0)
         image_ndvi = np.reshape(image_ndvi, (64, 64, 1))
 
         X.append(image_ndvi)
