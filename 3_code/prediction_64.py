@@ -238,7 +238,7 @@ if __name__ == '__main__':
         class_names=['full loss', 'partial loss', 'full and partial loss', 'no loss'],
         path=os.path.join(args.project_path, '4_runs/plots/', hparam_str),
         file_name_prefix='loss_cat_4d',
-        normalize=True
+        normalize=False
     )
 
     plot_confusion_matrix(
@@ -247,7 +247,7 @@ if __name__ == '__main__':
         class_names=['no loss', 'some loss'],
         path=os.path.join(args.project_path, '4_runs/plots/', hparam_str),
         file_name_prefix='loss_cat_2d',
-        normalize=True
+        normalize=False
     )
 
     # top_5_plants = ['Rehuohra', 'Kaura', 'Mallasohra', 'Kevätvehnä', 'Kevätrypsi']
@@ -259,7 +259,7 @@ if __name__ == '__main__':
         class_names=top_5_plants,
         path=os.path.join(args.project_path, '4_runs/plots/', hparam_str),
         file_name_prefix='plant_cat',
-        normalize=True
+        normalize=False
     )
 
     print()
