@@ -2,25 +2,17 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-14:00:00
-#SBATCH --mem=65G
-#SBATCH --cpus-per-task=10
+#SBATCH --time=0-08:00:00
+#SBATCH --mem=85G
+#SBATCH --cpus-per-task=20
 #SBATCH --gres=gpu:1
 #SBATCH --constraint='pascal|volta'
-#SBATCH --output=./Max/sl-long-%j.txt
+#SBATCH --array=7-10
+#SBATCH --output=./Max/sl-long-%A_%a.txt
 
 # set -x # print all output to log file
 
 cd /scratch/cs/ai_croppro/
-
-# copy tfrecords files
-start=`date +%s`
-mkdir /tmp/$SLURM_JOB_ID                                    # get a directory where you will send all output from your program
-cp 2_data/03_images_subset_masked/*.tfrecord /tmp/$SLURM_JOB_ID    # copy tfrecords files to temporary directory
-cp 2_data/03_images_subset_masked/*.txt /tmp/$SLURM_JOB_ID         # copy other necessary files to temporary directory
-end=`date +%s`
-runtime=$(($end-$start))
-echo "Copying took $runtime seconds"
 
 # load environment
 module purge
@@ -29,5 +21,9 @@ source activate edward
 
 which python
 
+# define the dimensionality of latent space and pass it as argument to python script
+z=$((2**$SLURM_ARRAY_TASK_ID))
+echo "latent dim: $z"
+
 # run python script with temporary directory as input for the images
-srun python 3_code/vae.py -c triton --data_path /tmp/$SLURM_JOB_ID/ -z 1024 --mse -e 80 --param_alternation long --n_conv 3
+srun python 3_code/vae.py -c triton -z $z --mse -e 80 --param_alternation long --n_conv 3
