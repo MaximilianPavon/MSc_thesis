@@ -27,6 +27,7 @@ if __name__ == '__main__':
     parser.add_argument("-w", "--weights", help="Load trained weights (.h5 file) saved by model.save_weights(filepath)."
                                                 "Path until parent directory: e.g \'4_runs/logging/weights/")
     parser.add_argument("--mse", action='store_true', help="Use mse loss instead of binary cross entropy (default)")
+    parser.add_argument("--in_field_loss", action='store_true', help="Only compute the loss inside the field")
     parser.add_argument('-e', "--epochs", type=int, help="Specify the number of training epochs")
     parser.add_argument('-z', "--latent_dim", type=int, help="Specify the dimensionality of latent space")
     parser.add_argument("--n_conv", type=int, help="Specify the number of convolutional layers.")
@@ -103,6 +104,7 @@ if __name__ == '__main__':
     hparam_str += str(int(batch_normalization)) + 'BN_'
     hparam_str += str(epochs) + 'ep_'
     hparam_str += loss_fct + '_'
+    hparam_str += str(int(args.in_field_loss)) + 'IFL_'
     hparam_str += datetime_str
 
     os.makedirs(os.path.join(args.project_path, '4_runs/plots/', hparam_str), exist_ok=True)
@@ -211,6 +213,14 @@ if __name__ == '__main__':
         return kl_div
 
     def recon_loss(y_true, y_pred):
+
+        if args.in_field_loss:
+            # only keep these parts of the true image where the field actually is
+            mask = tf.math.greater(y_true, 0)
+            y_true = tf.boolean_mask(y_true, mask)
+            y_pred = tf.boolean_mask(y_pred, mask)
+
+
         if args.mse:
             reconstruction_loss = tf.keras.losses.mse(
                 tf.keras.backend.flatten(y_true), tf.keras.backend.flatten(y_pred))
