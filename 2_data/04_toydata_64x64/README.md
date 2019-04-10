@@ -1,8 +1,8 @@
 The three files X64.npy, Y64.npy and ID64.txt together form the dataset used for comparing different feature extraction methods.
 
-- X64.npy is a numpy array of shape (18973, 64, 64, 1) consisting of 18973 images each of which have 64x64 pixels with the NDVI channel/band precomputed.
+- X64.npy is a numpy array of shape (18951, 64, 64, 1) consisting of 18951 images each of which have 64x64 pixels with the NDVI channel/band precomputed.
 
-- Y64.npy is a numpy array of shape (18973, 5) where:
+- Y64.npy is a numpy array of shape (18951, 5) where:
 	- Y[:, 0] is the proportion (of area) of full crop loss.
 	- Y[:, 1] is the proportion (of area) of partial crop loss.
 	- Y[:, 2] is 4-class class labels derived from Y[:, 0] and Y[:, 1]. 
