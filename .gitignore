@@ -9,6 +9,7 @@ __pycache__/
 ._*
 slurm-*.out
 sl-*.txt
+size.txt
 
 Icon?
 
