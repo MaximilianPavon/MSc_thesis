@@ -120,11 +120,13 @@ if __name__ == '__main__':
         inputs=encoder_input,
         outputs=[out_full_cl, out_partial_cl, out_loss_cat_4d_prob, out_loss_cat_2d_prob, out_plant_cat_prob],
         name='pred_model')
-    rmsprop = tf.keras.optimizers.RMSprop(lr=0.00001)
+    rmsprop = tf.keras.optimizers.RMSprop(lr=0.0001)
 
     pred_model.compile(optimizer=rmsprop,
                        loss=['mse', 'mse', 'binary_crossentropy', 'binary_crossentropy', 'binary_crossentropy'],
-                       metrics={'out_loss_cat_2d_prob': f1})
+                       metrics={'out_loss_cat_2d_prob': [f1, 'accuracy'],
+                                'out_loss_cat_4d_prob': 'accuracy',
+                                'out_plant_cat_prob': 'accuracy'})
     pred_model.summary()
     tf.keras.utils.plot_model(
         pred_model, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'pred_model.png'),
