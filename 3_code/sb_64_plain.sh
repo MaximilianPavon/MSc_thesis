@@ -2,7 +2,7 @@
 
 # request resources
 # -----------------------
-#SBATCH --time=0-02:00:00
+#SBATCH --time=0-03:00:00
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --array=7-10
