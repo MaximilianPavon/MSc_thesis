@@ -702,6 +702,8 @@ def plot_confusion_matrix(y_true, y_pred, class_names, path, file_name_prefix=''
             title = 'Normalized confusion matrix'
         else:
             title = 'Confusion matrix, without normalization'
+    else:
+        print(title)
 
     # Compute confusion matrix
     cm = confusion_matrix(y_true, y_pred)
@@ -766,3 +768,12 @@ def f1(y_true, y_pred):
     f1_score = 2 * p * r / (p + r + tf.keras.backend.epsilon())
     f1_score = tf.where(tf.is_nan(f1_score), tf.zeros_like(f1_score), f1_score)
     return tf.keras.backend.mean(f1_score)
+
+
+def my_acc(y_true, y_pred):
+    """ calculate the accuracy for one-hot encoded labels and predictions"""
+    y_true = tf.argmax(y_true, axis=1)  # convert probabilities to category
+    y_pred = tf.argmax(y_pred, axis=1)  # convert probabilities to category
+    y_pred = tf.keras.backend.round(y_pred)
+
+    return tf.keras.backend.mean(tf.keras.backend.equal(y_true, y_pred), axis=-1)

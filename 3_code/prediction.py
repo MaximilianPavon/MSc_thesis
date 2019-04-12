@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from my_functions import get_available_gpus, get_OS, create_tfdataDataset, f1, plot_confusion_matrix
+from my_functions import get_available_gpus, get_OS, create_tfdataDataset, f1, plot_confusion_matrix, my_acc
 
 op_sys = get_OS()
 if op_sys == 'Darwin':
@@ -124,9 +124,9 @@ if __name__ == '__main__':
 
     pred_model.compile(optimizer=rmsprop,
                        loss=['mse', 'mse', 'binary_crossentropy', 'binary_crossentropy', 'binary_crossentropy'],
-                       metrics={'out_loss_cat_2d_prob': [f1, 'accuracy'],
-                                'out_loss_cat_4d_prob': 'accuracy',
-                                'out_plant_cat_prob': 'accuracy'})
+                       metrics={'out_loss_cat_2d_prob': [f1, my_acc],
+                                'out_loss_cat_4d_prob': my_acc,
+                                'out_plant_cat_prob': my_acc})
     pred_model.summary()
     tf.keras.utils.plot_model(
         pred_model, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'pred_model.png'),
@@ -234,8 +234,9 @@ if __name__ == '__main__':
         np.argmax(y_pred_loss_cat_4d_prob, axis=1),
         class_names=['full loss', 'partial loss', 'full and partial loss', 'no loss'],
         path=os.path.join(args.project_path, '4_runs/plots/', hparam_str),
-        file_name_prefix='loss_cat_4d',
-        normalize=False
+        file_name_prefix='loss_cat_4d_',
+        normalize=False,
+        title=f'Loss category 4D {args.param_alternation}'
     )
 
     plot_confusion_matrix(
@@ -243,8 +244,9 @@ if __name__ == '__main__':
         np.argmax(y_pred_loss_cat_2d_prob, axis=1),
         class_names=['no loss', 'some loss'],
         path=os.path.join(args.project_path, '4_runs/plots/', hparam_str),
-        file_name_prefix='loss_cat_2d',
-        normalize=False
+        file_name_prefix='loss_cat_2d_',
+        normalize=False,
+        title=f'Loss category 2D {args.param_alternation}'
     )
 
     # top_5_plants = ['Rehuohra', 'Kaura', 'Mallasohra', 'Kevätvehnä', 'Kevätrypsi']
@@ -255,8 +257,9 @@ if __name__ == '__main__':
         np.argmax(y_pred_plant_cat_prob, axis=1),
         class_names=top_5_plants,
         path=os.path.join(args.project_path, '4_runs/plots/', hparam_str),
-        file_name_prefix='plant_cat',
-        normalize=False
+        file_name_prefix='plant_cat_',
+        normalize=False,
+        title=f'Plant category {args.param_alternation}'
     )
 
     print()
