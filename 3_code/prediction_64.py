@@ -9,7 +9,7 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
 
-from my_functions import get_OS, plot_confusion_matrix, f1, my_acc
+from my_functions import get_OS, plot_confusion_matrix, f1, my_acc, f1_macro
 
 op_sys = get_OS()
 if op_sys == 'Darwin':
@@ -158,8 +158,8 @@ if __name__ == '__main__':
     pred_model.compile(optimizer=rmsprop,
                        loss=['mse', 'mse', 'binary_crossentropy', 'binary_crossentropy', 'binary_crossentropy'],
                        metrics={'out_loss_cat_2d_prob': [f1, my_acc],
-                                'out_loss_cat_4d_prob': my_acc,
-                                'out_plant_cat_prob': my_acc})
+                                'out_loss_cat_4d_prob': [f1_macro, my_acc],
+                                'out_plant_cat_prob': [f1_macro, my_acc]})
     pred_model.summary()
     tf.keras.utils.plot_model(
         pred_model, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'pred_model.png'),

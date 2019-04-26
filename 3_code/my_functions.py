@@ -769,6 +769,22 @@ def f1(y_true, y_pred):
     f1_score = tf.where(tf.is_nan(f1_score), tf.zeros_like(f1_score), f1_score)
     return tf.keras.backend.mean(f1_score)
 
+def f1_macro(y_true, y_pred):
+    """define f1 score with macro averaging as custom metric for multiclass data"""
+    y_true = tf.cast(y_true, tf.float64)
+    y_pred = tf.cast(y_pred, tf.float64)
+
+    axis = 0
+    TP = tf.count_nonzero(y_pred * y_true, axis=axis, dtype=tf.float64)
+    FP = tf.count_nonzero(y_pred * (y_true - 1), axis=axis, dtype=tf.float64)
+    FN = tf.count_nonzero((y_pred - 1) * y_true, axis=axis, dtype=tf.float64)
+
+    precision = TP / (TP + FP + tf.keras.backend.epsilon())
+    recall = TP / (TP + FN + tf.keras.backend.epsilon())
+    f1 = 2 * precision * recall / (precision + recall + tf.keras.backend.epsilon())
+
+    return tf.reduce_mean(f1)
+
 
 def my_acc(y_true, y_pred):
     """ calculate the accuracy for one-hot encoded labels and predictions"""

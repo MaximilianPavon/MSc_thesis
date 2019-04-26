@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from my_functions import get_available_gpus, get_OS, create_tfdataDataset, f1, plot_confusion_matrix, my_acc
+from my_functions import get_available_gpus, get_OS, create_tfdataDataset, f1, plot_confusion_matrix, my_acc, f1_macro
 
 op_sys = get_OS()
 if op_sys == 'Darwin':
@@ -125,8 +125,8 @@ if __name__ == '__main__':
     pred_model.compile(optimizer=rmsprop,
                        loss=['mse', 'mse', 'binary_crossentropy', 'binary_crossentropy', 'binary_crossentropy'],
                        metrics={'out_loss_cat_2d_prob': [f1, my_acc],
-                                'out_loss_cat_4d_prob': my_acc,
-                                'out_plant_cat_prob': my_acc})
+                                'out_loss_cat_4d_prob': [f1_macro, my_acc],
+                                'out_plant_cat_prob': [f1_macro, my_acc]})
     pred_model.summary()
     tf.keras.utils.plot_model(
         pred_model, to_file=os.path.join(args.project_path, '4_runs/plots/', hparam_str, 'pred_model.png'),
