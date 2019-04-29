@@ -769,8 +769,16 @@ def f1(y_true, y_pred):
     f1_score = tf.where(tf.is_nan(f1_score), tf.zeros_like(f1_score), f1_score)
     return tf.keras.backend.mean(f1_score)
 
+
 def f1_macro(y_true, y_pred):
     """define f1 score with macro averaging as custom metric for multiclass data"""
+
+    # vector of probabilities of classes has to be converted first to a binary one-hot vector first
+    # e.g. y_pred = [[ 0.2, 0.5, 0.3]] --> [[ 0, 1, 0]]
+    depth = tf.shape(y_true)[-1]  # number of classes
+    y_pred = tf.argmax(y_pred, axis=1)  # convert probabilities to category
+    y_pred = tf.one_hot(y_pred, depth)  # convert categories back to one-hot vector
+
     y_true = tf.cast(y_true, tf.float64)
     y_pred = tf.cast(y_pred, tf.float64)
 
